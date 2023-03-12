@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: 에러 발생시 이슈를 등록해 주세요 ( 에러 내용과 해결과정을 공유, 해결 합니다 )
+about: 에러 발생시 이슈를 등록해주세요 ( 에러 내용과 해결과정을 공유, 해결 합니다 )
 title: 'Bug Report : '
 labels: ''
 assignees: ''

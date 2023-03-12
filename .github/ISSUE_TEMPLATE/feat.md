@@ -1,6 +1,6 @@
 ---
 name: Feat
-about: Suggest an idea for this project
+about: 새로운 기능을 추가할 때 등록해주세요.
 title: 'Feat : '
 labels: ''
 assignees: ''
