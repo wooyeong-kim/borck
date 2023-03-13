@@ -1,12 +1,12 @@
 package com.sparta.petplace.post.service;
 
+
 import com.sparta.petplace.S3Service;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.entity.Member;
-import com.sparta.petplace.member.repository.MemberRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
@@ -19,15 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final S3Service s3Service;
-    private final MemberRepository memberRepository;
 
 
     @Transactional
@@ -48,6 +47,7 @@ public class PostService {
             imgList.add(image);
         }
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
+
     }
 
 }

@@ -3,8 +3,6 @@ package com.sparta.petplace.like.service;
 import com.sparta.petplace.auth.security.UserDetailsImpl;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
-import com.sparta.petplace.exception.CustomException;
-import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.like.dto.LikesResponseDto;
 import com.sparta.petplace.like.entity.Likes;
 import com.sparta.petplace.like.repository.LikesRepository;
