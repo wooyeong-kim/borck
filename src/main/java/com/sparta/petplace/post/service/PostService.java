@@ -3,7 +3,7 @@ package com.sparta.petplace.post.service;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.entity.PostImage;
-import com.sparta.petplace.post.repository.PostRepostitory;
+import com.sparta.petplace.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
-    private final PostRepostitory postRepostitory;
+    private final PostRepository postRepostitory;
 
     public List<PostResponseDto> getPosts(String categry) {
         List<Post> posts = postRepostitory.findAllByCategoryContaining(categry);
