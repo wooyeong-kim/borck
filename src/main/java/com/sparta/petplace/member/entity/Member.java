@@ -22,21 +22,18 @@ public class Member {
     private String password;
     @Column(nullable = false)
     private String email;
+    @Column(nullable = true)
+    private String business;
 
 
 
 
     @Builder
-    private Member(SignupRequestDto signupRequestDto) {
-        password = signupRequestDto.getPassword();
-        nickname = signupRequestDto.getNickname();
-        email = signupRequestDto.getEmail();
-    }
-
-    public static Member of(SignupRequestDto signupRequestDto) {
-        return Member.builder()
-                .signupRequestDto(signupRequestDto)
-                .build();
+    public Member(String email,String password, String nickname, String business){
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.business = business;
     }
 
 }

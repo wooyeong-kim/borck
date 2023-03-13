@@ -6,6 +6,7 @@ import com.sparta.petplace.common.SuccessLoginResponse;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
+import com.sparta.petplace.member.dto.BusinessSignupRequestDto;
 import com.sparta.petplace.member.dto.LoginRequestDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
 import com.sparta.petplace.member.service.MemberService;
@@ -21,7 +22,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/members")
 @Slf4j
 public class MemberController {
 
@@ -31,20 +32,42 @@ public class MemberController {
      * 회원가입 기능 Controller
      */
 
-    @PostMapping("/members/signup")
+    @PostMapping("/signup")
     public ApiResponseDto<SuccessResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto,
                                                   BindingResult result) {
         if (result.hasErrors()){
             if (result.getFieldError().getDefaultMessage().equals("패스워드에러"))
                 throw new CustomException(Error.WRONG_PASSWORD_CHECK);
-            throw new CustomException(Error.VALIDATE_EMAIL_ERROR);
+            if (result.getFieldError().getDefaultMessage().equals("닉네임에러"))
+                throw new CustomException(Error.VALIDATE_NICKNAME_ERROR);
+            if (result.getFieldError().getDefaultMessage().equals("이메일에러"))
+                throw new CustomException(Error.VALIDATE_EMAIL_ERROR);
         }
         return memberService.signup(signupRequestDto);
     }
     /**
+     * 사업자 회원가입
+     **/
+    @PostMapping("/business_signup")
+    public ApiResponseDto<SuccessResponse> businessSignup(@Valid @RequestBody BusinessSignupRequestDto signupRequestDto,
+                                                  BindingResult result) {
+        if (result.hasErrors()){
+            if (result.getFieldError().getDefaultMessage().equals("패스워드에러"))
+                throw new CustomException(Error.WRONG_PASSWORD_CHECK);
+            if (result.getFieldError().getDefaultMessage().equals("사업자 등록번호 에러"))
+                throw new CustomException(Error.VALIDATE_BUSINESS);
+            if (result.getFieldError().getDefaultMessage().equals("닉네임에러"))
+                throw new CustomException(Error.VALIDATE_NICKNAME_ERROR);
+            if (result.getFieldError().getDefaultMessage().equals("이메일에러"))
+                throw new CustomException(Error.VALIDATE_EMAIL_ERROR);
+        }
+        return memberService.businessSignup(signupRequestDto);
+    }
+
+    /**
      * 로그인 메서드
      **/
-    @PostMapping("/members/login")
+    @PostMapping("/login")
     public ApiResponseDto<SuccessLoginResponse> login(@RequestBody LoginRequestDto requestDto,
                                                       HttpServletResponse response){
         return memberService.login(requestDto,response);
@@ -54,16 +77,25 @@ public class MemberController {
      * 회원명 중복 체크
      */
 
-    @GetMapping("/members")
+    @GetMapping("/signup")
     public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam("email") String email) {
-        memberService.memberCheck(email);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"사용가능한 계정입니다"));
+        return   memberService.memberCheck(email);
     }
+
+
+    /**
+     * 사업자명 중복체크
+     */
+    @GetMapping("/signup/businesscheck")
+    public ApiResponseDto<SuccessResponse> businessMemberCheck( @RequestParam("email") String email) {
+        return  memberService.businessMemberCheck(email);
+    }
+
 
     /**
      * 회원 토큰 갱신
      **/
-    @GetMapping("/members/token")
+    @GetMapping("/token")
     public  ApiResponseDto<SuccessResponse> issuedToken(HttpServletRequest request,
                                                         HttpServletResponse response){
         return memberService.issueToken(request,response);

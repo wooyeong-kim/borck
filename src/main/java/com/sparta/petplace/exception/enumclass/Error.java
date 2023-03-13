@@ -18,6 +18,8 @@ public enum Error {
     WRONG_PASSWORD_CHECK( "400", "비밀번호 형식이 아닙니다"),
     VALIDATE_EMAIL_ERROR( "400", "이메일 형식이 아닙니다."),
     VALIDATE_NICKNAME_ERROR( "400", "닉네임은 알파벳 대, 소문자, 숫자로 구성된 2-12자리여야 한다."),
+    VALIDATE_BUSINESS("400", "사업자 번호가 일치하지 않습니다."),
+    VALIDATE_NICKNAME("400", "닉네임 형식이 아닙니다."),
     NOT_MY_CONTENT("400", "작성자만 수정/삭제가 가능합니다"),
     NOT_EXIST_COMMENT("400","댓글이 존재하지 않습니다"),
     NOT_EXIST_USER("400","사용자가 없습니다"),
@@ -29,6 +31,7 @@ public enum Error {
 
     // 409 CONFLICT 중복된 리소스
     DUPLICATED_EMAIL("409", "이미 존재하는 이메일입니다."),
+    DUPLICATED_BUSINESS("400", "이미 존재하는 사업자 번호입니다."),
     DUPLICATED_NICKNAME("409", "이미 존재하는 닉네임입니다.");
 
     private final String status;
