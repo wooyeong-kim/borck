@@ -29,6 +29,7 @@ public class PostService {
     private final S3Service s3Service;
 
 
+
     @Transactional
     public ApiResponseDto<PostResponseDto> createPost(PostRequestDto requestDto, Member member) {
         if(requestDto.getImages().isEmpty()){
