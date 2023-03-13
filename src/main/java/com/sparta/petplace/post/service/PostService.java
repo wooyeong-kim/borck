@@ -35,10 +35,7 @@ public class PostService {
         if(requestDto.getImages().isEmpty()){
             throw new CustomException(Error.WRONG_INPUT_CONTEN);
         }
-        Post posts = new Post(requestDto.getEmail(),requestDto.getTitle(),requestDto.getCategory(),
-                requestDto.getContents(),requestDto.getMapdate(),
-                requestDto.getAddress(),requestDto.getTelNum(),requestDto.getCeo(),requestDto.getStartTime(),
-                requestDto.getEndTime(),requestDto.getClosedDay(),member);
+        Post posts = Post.of(requestDto, member);
         postRepository.save(posts);
         List<String> imgList = new ArrayList<>();
         List<String> img_url = s3Service.upload(requestDto.getImages());
