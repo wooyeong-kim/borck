@@ -2,13 +2,12 @@ package com.sparta.petplace.post.entity;
 
 import com.sparta.petplace.common.Timestamped;
 import com.sparta.petplace.member.entity.Member;
-import com.sparta.petplace.post.ResponseDto.PostResponseDto;
+import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,20 +46,23 @@ public class Post extends Timestamped {
     @JoinColumn(name = "MEMBER_ID",nullable = false)
     private Member member;
 
-    public Post(String email, String title, Posts category, String contents, String mapdata,
-                String address, Integer telNum, String ceo,
-                Integer startTime, Integer endTime, Integer closedDay, Member member) {
-        this.email = email;
-        this.title = title;
-        this.category = category;
-        this.contents = contents;
-        this.mapdata = mapdata;
-        this.address = address;
-        this.telNum = telNum;
-        this.ceo = ceo;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.closedDay = closedDay;
+    @Builder
+    public Post(PostRequestDto requestDto, Member member) {
+        this.email = requestDto.getEmail();
+        this.title = requestDto.getTitle();
+        this.category = requestDto.getCategory();
+        this.contents = requestDto.getContents();
+        this.mapdata = requestDto.getMapdate();
+        this.address = requestDto.getAddress();
+        this.telNum = requestDto.getTelNum();
+        this.ceo = requestDto.getCeo();
+        this.startTime = requestDto.getStartTime();
+        this.endTime = requestDto.getEndTime();
+        this.closedDay = requestDto.getClosedDay();
         this.member = member;
+    }
+
+    public static Post of (PostRequestDto requestDto, Member member){
+        return builder().requestDto(requestDto).member(member).build();
     }
 }
