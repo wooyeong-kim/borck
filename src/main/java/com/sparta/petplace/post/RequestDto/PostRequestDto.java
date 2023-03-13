@@ -1,5 +1,6 @@
 package com.sparta.petplace.post.RequestDto;
 
+import com.sparta.petplace.post.entity.Posts;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,11 +12,13 @@ import java.util.List;
 @Setter
 public class PostRequestDto {
     private Long id;
+    private String email;
     private String title;
-    private String category;
+    private Posts category;
+    private String ceo;
     private String contents;
     private List<MultipartFile> images = new ArrayList<>();
-    private Integer mapdate;
+    private String mapdate;
     private String address;
     private Integer telNum;
     private Integer startTime;
