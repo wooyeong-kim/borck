@@ -22,5 +22,6 @@ public class ExceptionDto {
         this.success = success;
         this.response = response;
         this.error.put("status", error.getStatus());
+        this.error.put("message", error.getMessage());
     }
 }
