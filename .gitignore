@@ -16,3 +16,5 @@
 /.idea/misc.xml
 /.idea/vcs.xml
 /.idea/workspace.xml
+/src/main/resources/application.yml
+/.idea/
