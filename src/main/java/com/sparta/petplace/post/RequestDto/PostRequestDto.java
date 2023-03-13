@@ -11,14 +11,14 @@ import java.util.List;
 @Getter
 @Setter
 public class PostRequestDto {
-    private Long id;
-    private String email;
+//    private Long id;
+//    private String email;
     private String title;
-    private Posts category;
+    private String category;
     private String ceo;
     private String contents;
-    private List<MultipartFile> images = new ArrayList<>();
-    private String mapdate;
+    private List<MultipartFile> image = new ArrayList<>();
+    private String mapdata;
     private String address;
     private Integer telNum;
     private Integer startTime;

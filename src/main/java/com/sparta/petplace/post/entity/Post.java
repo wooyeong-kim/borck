@@ -23,7 +23,7 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
-    private Posts category;
+    private String category;
     @Column(nullable = false)
     private String contents;
     @OneToMany
@@ -42,17 +42,17 @@ public class Post extends Timestamped {
     private Integer endTime;
     @Column(nullable = false)
     private Integer closedDay;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MEMBER_ID",nullable = false)
     private Member member;
 
     @Builder
     public Post(PostRequestDto requestDto, Member member) {
-        this.email = requestDto.getEmail();
+        this.email = member.getEmail();
         this.title = requestDto.getTitle();
         this.category = requestDto.getCategory();
         this.contents = requestDto.getContents();
-        this.mapdata = requestDto.getMapdate();
+        this.mapdata = requestDto.getMapdata();
         this.address = requestDto.getAddress();
         this.telNum = requestDto.getTelNum();
         this.ceo = requestDto.getCeo();
@@ -63,6 +63,9 @@ public class Post extends Timestamped {
     }
 
     public static Post of (PostRequestDto requestDto, Member member){
-        return builder().requestDto(requestDto).member(member).build();
+        return builder().
+                requestDto(requestDto).
+                member(member).
+                build();
     }
 }

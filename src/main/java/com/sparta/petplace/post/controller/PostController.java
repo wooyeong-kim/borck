@@ -23,11 +23,11 @@ public class PostController {
    private final PostService postService;
 
    @GetMapping("/posts")
-   public List<PostResponseDto> getPosts(@RequestParam(value = "category") String category, Model model){
-      List<PostResponseDto> postResponseDtoList = postService.getPosts(category);
+   public List<PostResponseDto> getPosts(@RequestParam(value = "keyword") String keyword, Model model){
+      List<PostResponseDto> postResponseDtoList = postService.getPosts(keyword);
       model.addAttribute("postList", postResponseDtoList);
 
-      return postService.getPosts(category);
+      return postService.getPosts(keyword);
    }
 
    @PostMapping("/post")

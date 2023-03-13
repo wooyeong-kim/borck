@@ -13,6 +13,7 @@ import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.dto.BusinessSignupRequestDto;
 import com.sparta.petplace.member.dto.LoginRequestDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
+import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class MemberService {
 
     /**
      * 회원가입 기능
-     * */
+     */
     @Transactional
     public ApiResponseDto<SuccessResponse> signup(SignupRequestDto signupRequestDto) {
         memberCheck(signupRequestDto.getEmail());
@@ -49,12 +50,14 @@ public class MemberService {
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                 .nickname(signupRequestDto.getNickname())
                 .email(signupRequestDto.getEmail())
+                .loginType(LoginType.USER)
                 .build());
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"회원가입 성공"));
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
     }
+
     /**
      * 사업자 회원가입 기능
-     * */
+     */
     public ApiResponseDto<SuccessResponse> businessSignup(BusinessSignupRequestDto signupRequestDto) {
         memberCheck(signupRequestDto.getEmail());
         memberRepository.save(Member.builder()
@@ -62,6 +65,7 @@ public class MemberService {
                 .nickname(signupRequestDto.getNickname())
                 .email(signupRequestDto.getEmail())
                 .business(signupRequestDto.getBusiness())
+                .loginType(LoginType.BUSINESS)
                 .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
     }
@@ -75,10 +79,10 @@ public class MemberService {
         String password = requestDto.getPassword();
 
         Optional<Member> findMember = memberRepository.findByEmail(email);
-        if(findMember.isEmpty()){
+        if (findMember.isEmpty()) {
             throw new CustomException(NOT_EXIST_USER);
         }
-        if(!passwordEncoder.matches(password , findMember.get().getPassword())){
+        if (!passwordEncoder.matches(password, findMember.get().getPassword())) {
             throw new CustomException(PASSWORD_WRONG);
         }
 
@@ -86,9 +90,9 @@ public class MemberService {
 
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findAllByMemberId(email);
 
-        if(refreshToken.isPresent()) {
+        if (refreshToken.isPresent()) {
             refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefresh_Token()));
-        }else {
+        } else {
             RefreshToken newToken = new RefreshToken(tokenDto.getRefresh_Token(), email);
             refreshTokenRepository.save(newToken);
         }
@@ -96,16 +100,16 @@ public class MemberService {
         jwtUtil.setHeader(response, tokenDto);
 
 
-        return ResponseUtils.ok(SuccessLoginResponse.of(HttpStatus.OK,"로그인 성공", findMember.get().getNickname()));
+        return ResponseUtils.ok(SuccessLoginResponse.of(HttpStatus.OK, "로그인 성공", findMember.get().getNickname()));
     }
 
     /**
      * 이메일 중복 검사
      **/
     @Transactional
-    public ApiResponseDto<SuccessResponse> memberCheck(String email)  {
+    public ApiResponseDto<SuccessResponse> memberCheck(String email) {
         Optional<Member> findMember = memberRepository.findByEmail(email);
-        if(findMember.isPresent()){
+        if (findMember.isPresent()) {
             throw new CustomException(Error.DUPLICATED_EMAIL);
         }
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용 가능한 계정입니다."));
@@ -115,9 +119,9 @@ public class MemberService {
      * 사업자 번호 중복검사
      **/
     @Transactional
-    public ApiResponseDto<SuccessResponse> businessMemberCheck(String business)  {
+    public ApiResponseDto<SuccessResponse> businessMemberCheck(String business) {
         Optional<Member> findMember = memberRepository.findByBusiness(business);
-        if(findMember.isPresent()){
+        if (findMember.isPresent()) {
             throw new CustomException(Error.DUPLICATED_BUSINESS);
         }
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "가입이 가능합니다.."));
@@ -129,7 +133,7 @@ public class MemberService {
      **/
     public ApiResponseDto<SuccessResponse> issueToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.resolveToken(request, "Refresh");
-        if(!jwtUtil.refreshTokenValidation(refreshToken)){
+        if (!jwtUtil.refreshTokenValidation(refreshToken)) {
             throw new CustomException(Error.WRONG_TOKEN);
         }
 

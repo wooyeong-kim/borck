@@ -17,9 +17,9 @@ public class PostResponseDto {
     private String email;
     private String title;
     private String ceo;
-    private LoginType category;
+    private String category;
 //    private List<ContentsResponseDto> contents;
-    private List<String> images;
+    private List<String> image;
     private String mapdata;
     private String address;
     private Integer telNum;
@@ -31,14 +31,13 @@ public class PostResponseDto {
 
     @Builder
     public PostResponseDto(Post post,
-                           List<String> images,
-                           Member member){// List<ContentsResponse> posts 추가
+                           List<String> image){// List<ContentsResponse> posts 추가
         this.id = post.getId();
         this.email = post.getEmail();
         this.title = post.getTitle();
-        this.category = member.getLoginType();
+        this.category = post.getCategory();
         this.ceo = post.getCeo();
-        this.images = images;
+        this.image = image;
         this.mapdata = post.getMapdata();
         this.address = post.getAddress();
         this.telNum = post.getTelNum();
@@ -53,10 +52,10 @@ public class PostResponseDto {
                 .post(post)
                 .build();
     }
-    public static PostResponseDto from(Post post,List<String> images){
+    public static PostResponseDto from(Post post,List<String> image){
         return PostResponseDto.builder()
                 .post(post)
-                .images(images)
+                .image(image)
                 .build();
     }
 }
