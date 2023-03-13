@@ -29,6 +29,27 @@ public class PostService {
     private final S3Service s3Service;
 
 
+    public List<PostResponseDto> getPosts(String categry) {
+        List<Post> posts = postRepository.findAllByCategoryContaining(categry);
+        List<PostResponseDto> postResponseDtos = new ArrayList<>();
+
+        for (Post p : posts){
+//            p.getReviews().sort(Comparator.comparing(Review::gerCreatedAt).reversed());
+//            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+//            for(Review r : p.getReviews()){
+//                reviewResponseDtos.add(new ReviewResponseDtoa(r));
+//            }
+            List<String> images = new ArrayList<>();
+            for (PostImage postImage : p.getImages()) {
+                images.add(postImage.getImage());
+            }
+            postResponseDtos.add(PostResponseDto.builder()
+                    .post(p)
+                    .images(images)
+                    .build());
+        }
+        return  postResponseDtos;
+    }
 
     @Transactional
     public ApiResponseDto<PostResponseDto> createPost(PostRequestDto requestDto, Member member) {

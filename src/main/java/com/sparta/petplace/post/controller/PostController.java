@@ -9,9 +9,8 @@ import com.sparta.petplace.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,11 +22,18 @@ public class PostController {
 
    private final PostService postService;
 
+   @GetMapping("/posts")
+   public List<PostResponseDto> getPosts(@RequestParam(value = "category") String category, Model model){
+      List<PostResponseDto> postResponseDtoList = postService.getPosts(category);
+      model.addAttribute("postList", postResponseDtoList);
+
+      return postService.getPosts(category);
+   }
+
    @PostMapping("/post")
    public ApiResponseDto<PostResponseDto> createPost(@ModelAttribute PostRequestDto requestDto,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
       return postService.createPost(requestDto,userDetails.getMember());
    }
-
 
 }
