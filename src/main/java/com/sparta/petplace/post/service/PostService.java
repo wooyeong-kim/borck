@@ -1,5 +1,6 @@
 package com.sparta.petplace.post.service;
 
+
 import com.sparta.petplace.S3Service;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
@@ -22,6 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final S3Service s3Service;
@@ -46,6 +48,7 @@ public class PostService {
             imgList.add(image);
         }
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
+
     }
 
 }
