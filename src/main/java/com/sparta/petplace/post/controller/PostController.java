@@ -2,7 +2,6 @@ package com.sparta.petplace.post.controller;
 
 import com.sparta.petplace.auth.security.UserDetailsImpl;
 import com.sparta.petplace.common.ApiResponseDto;
-import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.service.PostService;
