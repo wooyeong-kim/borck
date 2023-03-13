@@ -16,6 +16,7 @@ public enum Error {
     NO_AUTHORITY("400", "권한이 없습니다."),
     WRONG_TOKEN("400", "토큰 오류"),
     WRONG_PASSWORD_CHECK( "400", "비밀번호 형식이 아닙니다"),
+    DUPLICATED_BUSINESS("400","중복된 사업자 게시글 입니다."),
     VALIDATE_BUSINESS("400","사업자 번호가 일치하지 않습니다."),
     VALIDATE_EMAIL_ERROR( "400", "이메일 형식이 아닙니다."),
     VALIDATE_NICKNAME_ERROR( "400", "닉네임은 알파벳 대, 소문자, 숫자로 구성된 2-12자리여야 한다."),
