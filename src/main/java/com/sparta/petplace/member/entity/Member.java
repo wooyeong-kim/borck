@@ -25,15 +25,21 @@ public class Member {
     @Column(nullable = true)
     private String business;
 
-
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private LoginType loginType;
 
 
     @Builder
-    public Member(String email,String password, String nickname, String business){
+    public Member(String email,String password, String nickname, String business,LoginType loginType){
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.business = business;
+        this.loginType = loginType;
     }
 
+    public void updateLoginStatus(LoginType loginType){
+        this.loginType = loginType;
+    }
 }

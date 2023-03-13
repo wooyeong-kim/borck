@@ -1,5 +1,6 @@
 package com.sparta.petplace.member.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessLoginResponse;
@@ -9,6 +10,7 @@ import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.dto.BusinessSignupRequestDto;
 import com.sparta.petplace.member.dto.LoginRequestDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
+import com.sparta.petplace.member.service.KakaoService;
 import com.sparta.petplace.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,7 @@ import javax.validation.Valid;
 public class MemberController {
 
     private final MemberService memberService;
-
+    private final KakaoService kakaoService;
     /**
      * 회원가입 기능 Controller
      */
@@ -99,6 +101,11 @@ public class MemberController {
     public  ApiResponseDto<SuccessResponse> issuedToken(HttpServletRequest request,
                                                         HttpServletResponse response){
         return memberService.issueToken(request,response);
+    }
+
+    @GetMapping("/kakao/callback")
+    public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response)throws JsonProcessingException {
+        return kakaoService.kakaoLogin(code, response);
     }
 
 }
