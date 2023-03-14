@@ -6,12 +6,12 @@ import com.sparta.petplace.auth.jwt.RefreshTokenRepository;
 import com.sparta.petplace.auth.jwt.TokenDto;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
-import com.sparta.petplace.common.SuccessLoginResponse;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.dto.BusinessSignupRequestDto;
 import com.sparta.petplace.member.dto.LoginRequestDto;
+import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
@@ -74,7 +74,7 @@ public class MemberService {
      * 로그인 기능
      */
     @Transactional
-    public ApiResponseDto<SuccessLoginResponse> login(LoginRequestDto requestDto, HttpServletResponse response) {
+    public ApiResponseDto<LoginResponseDto> login(LoginRequestDto requestDto, HttpServletResponse response) {
         String email = requestDto.getEmail();
         String password = requestDto.getPassword();
 
@@ -99,8 +99,12 @@ public class MemberService {
 
         jwtUtil.setHeader(response, tokenDto);
 
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .loginType(findMember.get().getLoginType())
+                .nickcame(findMember.get().getNickname())
+                .build();
 
-        return ResponseUtils.ok(SuccessLoginResponse.of(HttpStatus.OK, "로그인 성공", findMember.get().getNickname()));
+        return ResponseUtils.ok(loginResponseDto);
     }
 
     /**

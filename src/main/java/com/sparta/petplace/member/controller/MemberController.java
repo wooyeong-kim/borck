@@ -9,6 +9,7 @@ import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.dto.BusinessSignupRequestDto;
 import com.sparta.petplace.member.dto.LoginRequestDto;
+import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
 import com.sparta.petplace.member.service.KakaoService;
 import com.sparta.petplace.member.service.MemberService;
@@ -69,8 +70,8 @@ public class MemberController {
      * 로그인 메서드
      **/
     @PostMapping("/login")
-    public ApiResponseDto<SuccessLoginResponse> login(@RequestBody LoginRequestDto requestDto,
-                                                      HttpServletResponse response){
+    public ApiResponseDto<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto,
+                                                  HttpServletResponse response){
         return memberService.login(requestDto,response);
     }
 
@@ -103,7 +104,7 @@ public class MemberController {
     }
 
     @GetMapping("/kakao/callback")
-    public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response)throws JsonProcessingException {
+    public ApiResponseDto<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response)throws JsonProcessingException {
         return kakaoService.kakaoLogin(code, response);
     }
 

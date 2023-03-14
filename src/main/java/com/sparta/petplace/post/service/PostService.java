@@ -13,7 +13,6 @@ import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
-import com.sparta.petplace.mypage.entity.Mypage;
 import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
@@ -26,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Temporal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -165,4 +163,25 @@ public class PostService {
 
 
 
+//    @Transactional(readOnly = true)
+//    public ApiResponseDto<List<PostResponseDto>> searchPost(String category, String keyword, Sort sort , Member member) {
+//        List<Post> postList;
+//        if (sort == Sort.STAR) {
+//            postList = postRepository.findByCategoryAndKeywordContainingOrderByStarDesc(category, keyword);
+//        }else if (sort == Sort.DISTANCE) {
+//            postList = postRepository.findByCategoryAndKeywordContainingOrderByDistanceDesc(category, keyword);
+//        } else if (sort == Sort.REVIEW) {
+//            postList = postRepository.findByCategoryAndKeywordContainingOrderByReviewDesc(category, keyword);
+//        } else {
+//            postList = postRepository.findByCategoryAndKeywordContaining(category, keyword);
+//        }
+//        List<PostResponseDto> responseDtoList = new ArrayList<>();
+//
+//        for (Post post : postList) {
+//            responseDtoList.add(PostResponseDto.of(post));
+//        }
+//
+//        return ResponseUtils.ok(responseDtoList);
+//
+//    }
 }
