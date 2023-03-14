@@ -31,7 +31,7 @@ public class Likes {
         this.post = post;
     }
 
-    public static Likes  of(Member member,Post post){
+    public static Likes of(Member member,Post post){
         return Likes.builder()
                 .member(member)
                 .post(post)

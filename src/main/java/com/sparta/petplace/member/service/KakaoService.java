@@ -11,6 +11,7 @@ import com.sparta.petplace.auth.jwt.TokenDto;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
+import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SocialUserInfoDto;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
@@ -37,7 +38,7 @@ public class KakaoService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
-    public ApiResponseDto<SuccessResponse> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ApiResponseDto<LoginResponseDto> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         String accessToken = getToken(code);
         SocialUserInfoDto userInfoDto = getkakaoUserInfo(accessToken);
         Member member = registerKakaoUserIfNeeded(userInfoDto);
@@ -50,7 +51,11 @@ public class KakaoService {
             refreshTokenRepository.save(newToken);
         }
         jwtUtil.setHeader(response,tokenDto);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용 가능한 계정"));
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .nickcame(member.getNickname())
+                .loginType(member.getLoginType())
+                .build();
+        return ResponseUtils.ok(loginResponseDto);
     }
 
     private String getToken(String code) throws JsonProcessingException{
