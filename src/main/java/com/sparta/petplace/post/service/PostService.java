@@ -32,6 +32,7 @@ public class PostService {
     private final MemberRepository memberRepository;
 
 
+    @Transactional
     public List<PostResponseDto> getPosts(String keyword) {
         List<Post> posts = postRepository.findAByCategory(keyword);
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
@@ -43,7 +44,7 @@ public class PostService {
 //                reviewResponseDtos.add(new ReviewResponseDtoa(r));
 //            }
             List<String> images = new ArrayList<>();
-            for (PostImage postImage : p.getImages()) {
+            for (PostImage postImage : p.getImage()) {
                 images.add(postImage.getImage());
             }
             postResponseDtos.add(PostResponseDto.builder()
@@ -73,7 +74,8 @@ public class PostService {
             imgList.add(image);
         }
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
-
     }
+
+
 
 }

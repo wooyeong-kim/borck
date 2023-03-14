@@ -30,8 +30,7 @@ public class PostResponseDto {
     private LocalDateTime modifiedAt;
 
     @Builder
-    public PostResponseDto(Post post,
-                           List<String> image){// List<ContentsResponse> posts 추가
+    public PostResponseDto(Post post, List<String> image){// List<ContentsResponse> posts 추가
         this.id = post.getId();
         this.email = post.getEmail();
         this.title = post.getTitle();

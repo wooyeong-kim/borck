@@ -26,8 +26,8 @@ public class Post extends Timestamped {
     private String category;
     @Column(nullable = false)
     private String contents;
-    @OneToMany
-    private List<PostImage> images = new ArrayList<>();
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> image = new ArrayList<>();
     @Column(nullable = false)
     private String mapdata;
     @Column(nullable = false)
