@@ -11,7 +11,6 @@ import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
-import com.sparta.petplace.mypage.entity.Mypage;
 import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
@@ -23,10 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Temporal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +75,7 @@ public class PostService {
         }
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
     }
+
     @Transactional
     public PostResponseDto getPostId(Long post_id, Member member){
         Post posts = postRepository.findById(post_id).orElseThrow(
