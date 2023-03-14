@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 public class Mypage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
