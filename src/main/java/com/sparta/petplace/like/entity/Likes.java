@@ -20,6 +20,7 @@ public class Likes {
     @JoinColumn(name = "MEMBER_ID",nullable = false)
     private Member member;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post post;
