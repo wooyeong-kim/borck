@@ -11,4 +11,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findById(Long post_id);
 
     Optional<Post> findByEmail(String email);
+
+//    List<Post> findByCategoryAndKeywordContainingOrderByStarDesc(String category, String keyword);
+//
+//    List<Post> findByCategoryAndKeywordContainingOrderByDistanceDesc(String category, String keyword);
+//
+//    List<Post> findByCategoryAndKeywordContainingOrderByReviewDesc(String category, String keyword);
+//
+//    List<Post> findByCategoryAndKeywordContaining(String category, String keyword);
 }
