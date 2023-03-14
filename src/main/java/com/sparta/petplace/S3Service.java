@@ -93,4 +93,21 @@ public class S3Service {
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
+    public String uploadMypage(MultipartFile file) {
+        String imgUrlList;
+        String fileName = createFileName(file.getOriginalFilename());
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        try(InputStream inputStream = file.getInputStream()) {
+            s3Client.putObject(new PutObjectRequest(bucket+"/post/image", fileName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            imgUrlList =(s3Client.getUrl(bucket+"/post/image", fileName).toString());
+        } catch(IOException e) {
+            throw new CustomException(Error.FAIL_S3_SAVE);
+        }
+
+        return imgUrlList;
+    }
 }
