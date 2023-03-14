@@ -22,15 +22,16 @@ public class PostResponseDto {
     private List<String> image;
     private String mapdata;
     private String address;
-    private Integer telNum;
-    private Integer startTime;
-    private Integer endTime;
-    private Integer closedDay;
+    private String telNum;
+    private String startTime;
+    private String endTime;
+    private String closedDay;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private boolean isSave;
 
     @Builder
-    public PostResponseDto(Post post, List<String> image){// List<ContentsResponse> posts 추가
+    public PostResponseDto(Post post, List<String> image, boolean isSave){// List<ContentsResponse> posts 추가
         this.id = post.getId();
         this.email = post.getEmail();
         this.title = post.getTitle();
@@ -45,7 +46,9 @@ public class PostResponseDto {
         this.closedDay = post.getClosedDay();
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();
+        this.isSave = isSave;
     }
+
     public static PostResponseDto of(Post post){
         return PostResponseDto.builder()
                 .post(post)
@@ -55,6 +58,13 @@ public class PostResponseDto {
         return PostResponseDto.builder()
                 .post(post)
                 .image(image)
+                .build();
+    }
+    public static PostResponseDto of(Post post, List<String> image, boolean isSave){
+        return PostResponseDto.builder()
+                .post(post)
+                .image(image)
+                .isSave(isSave)
                 .build();
     }
 }

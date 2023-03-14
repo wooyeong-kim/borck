@@ -1,6 +1,5 @@
 package com.sparta.petplace.post.RequestDto;
 
-import com.sparta.petplace.post.entity.Posts;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,8 +19,8 @@ public class PostRequestDto {
     private List<MultipartFile> image = new ArrayList<>();
     private String mapdata;
     private String address;
-    private Integer telNum;
-    private Integer startTime;
-    private Integer endTime;
-    private Integer closedDay;
+    private String telNum;
+    private String startTime;
+    private String endTime;
+    private String closedDay;
 }

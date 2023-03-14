@@ -23,10 +23,7 @@ public class PostController {
    private final PostService postService;
 
    @GetMapping("/posts")
-   public List<PostResponseDto> getPosts(@RequestParam(value = "keyword") String keyword, Model model){
-      List<PostResponseDto> postResponseDtoList = postService.getPosts(keyword);
-      model.addAttribute("postList", postResponseDtoList);
-
+   public List<PostResponseDto> getPosts(@RequestParam(value = "keyword") String keyword){
       return postService.getPosts(keyword);
    }
 
@@ -35,5 +32,11 @@ public class PostController {
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
       return postService.createPost(requestDto,userDetails.getMember());
    }
+
+   @GetMapping("/posts/{post_id}")
+   private PostResponseDto getPostId(@PathVariable Long post_id ,@AuthenticationPrincipal UserDetailsImpl userDetails){
+      return postService.getPostId(post_id,userDetails.getMember());
+   }
+
 
 }

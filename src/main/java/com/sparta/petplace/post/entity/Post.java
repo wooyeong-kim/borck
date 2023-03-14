@@ -33,16 +33,16 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String address;
     @Column(nullable = false)
-    private Integer telNum;
+    private String telNum;
     @Column(nullable = false)
     private String ceo;
     @Column(nullable = false)
-    private Integer startTime;
+    private String startTime;
     @Column(nullable = false)
-    private Integer endTime;
+    private String endTime;
     @Column(nullable = false)
-    private Integer closedDay;
-    @ManyToOne(fetch = FetchType.EAGER)
+    private String closedDay;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID",nullable = false)
     private Member member;
 

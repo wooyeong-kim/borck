@@ -6,9 +6,13 @@ import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
+import com.sparta.petplace.like.entity.Likes;
+import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
+import com.sparta.petplace.mypage.entity.Mypage;
+import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
@@ -19,8 +23,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Temporal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,8 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
+    private final MypageRepository mypageRepository;
+    private final LikesRepository likesRepository;
 
 
     @Transactional
@@ -43,13 +51,8 @@ public class PostService {
 //            for(Review r : p.getReviews()){
 //                reviewResponseDtos.add(new ReviewResponseDtoa(r));
 //            }
-            List<String> images = new ArrayList<>();
-            for (PostImage postImage : p.getImage()) {
-                images.add(postImage.getImage());
-            }
             postResponseDtos.add(PostResponseDto.builder()
                     .post(p)
-                    .image(images)
                     .build());
         }
         return  postResponseDtos;
@@ -74,6 +77,28 @@ public class PostService {
             imgList.add(image);
         }
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
+    }
+    @Transactional
+    public PostResponseDto getPostId(Long post_id, Member member){
+        Post posts = postRepository.findById(post_id).orElseThrow(
+                () -> new CustomException(Error.NOT_FOUND_POST)
+        );
+        List<String> images = new ArrayList<>();
+        for (PostImage postImage : posts.getImage()) {
+            images.add(postImage.getImage());
+        }
+
+//        posts.getReviews().sort(Comparator.comparing(Review::gerCreatedAt).reversed());
+//        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+//        for (Review r : p.getReviews()) {
+//            reviewResponseDtos.add(new ReviewResponseDtoa(r));
+//        }
+        Likes likes = likesRepository.findByPostIdAndMember(post_id, member);
+        if(likes==null){
+            return PostResponseDto.of(posts ,images,false);
+        }else {
+            return PostResponseDto.of(posts ,images ,true);
+        }
     }
 
 
