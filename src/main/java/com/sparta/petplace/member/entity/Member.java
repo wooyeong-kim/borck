@@ -1,7 +1,6 @@
 package com.sparta.petplace.member.entity;
 
 
-import com.sparta.petplace.member.dto.SignupRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +23,8 @@ public class Member {
     private String email;
     @Column(nullable = true)
     private String business;
+    @Column(nullable = true)
+    private String image;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
@@ -42,4 +43,20 @@ public class Member {
     public void updateLoginStatus(LoginType loginType){
         this.loginType = loginType;
     }
+
+    public static Member of (String email, String password, String nickname, String business, LoginType loginType) {
+        return Member.builder()
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .business(business)
+                .loginType(loginType)
+                .build();
+    }
+
+    public void update(String nickname, String image) {
+        this.nickname = nickname;
+        this.image = image;
+    }
+
 }

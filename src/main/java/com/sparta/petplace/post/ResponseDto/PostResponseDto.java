@@ -1,7 +1,5 @@
 package com.sparta.petplace.post.ResponseDto;
 
-import com.sparta.petplace.member.entity.LoginType;
-import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.post.entity.Post;
 import lombok.Builder;
 import lombok.Getter;

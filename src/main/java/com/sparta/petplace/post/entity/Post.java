@@ -6,12 +6,14 @@ import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Setter
 @Getter
 @NoArgsConstructor
 public class Post extends Timestamped {
@@ -67,5 +69,19 @@ public class Post extends Timestamped {
                 requestDto(requestDto).
                 member(member).
                 build();
+    }
+
+    public void update(PostRequestDto requestDto , List<PostImage> image) {
+        this.title = requestDto.getTitle();
+        this.category = requestDto.getCategory();
+        this.contents = requestDto.getContents();
+        this.mapdata = requestDto.getMapdata();
+        this.address = requestDto.getAddress();
+        this.telNum = requestDto.getTelNum();
+        this.ceo = requestDto.getCeo();
+        this.startTime = requestDto.getStartTime();
+        this.endTime = requestDto.getEndTime();
+        this.closedDay = requestDto.getClosedDay();
+        this.image = image;
     }
 }
