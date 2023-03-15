@@ -35,7 +35,6 @@ import java.util.Optional;
 public class MypageService {
     private final MypageRepository mypageRepository;
     private final PostRepository postRepository;
-    private final LikesRepository likesRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
     private final ReviewRepository reviewRepository;
@@ -85,12 +84,18 @@ public class MypageService {
 
     public ApiResponseDto<MemberResponseDto> getMember(Member member) {
         Optional<Member> found = memberRepository.findByEmail(member.getEmail());
+        if(found.isEmpty()){
+            throw new CustomException(Error.NOT_EXIST_USER);
+        }
         MemberResponseDto responseDto = MemberResponseDto.from(member);
         return ResponseUtils.ok(responseDto);
     }
 
     public List<ReviewResponseDto> getReview(Member member) {
         Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
+        if(review.isEmpty()){
+            throw new CustomException(Error.NOT_FOUND_POST);
+        }
         List<ReviewResponseDto> responseDtoList = new ArrayList<>();
         for (Review r : review.get()) {
             responseDtoList.add(ReviewResponseDto.from(r));
