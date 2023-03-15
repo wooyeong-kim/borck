@@ -21,3 +21,5 @@
 /.gradle/
 /build/
 application.yml
+/build/
+/.gradle/
