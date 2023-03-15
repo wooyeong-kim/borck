@@ -82,6 +82,7 @@ public class MypageService {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정완료"));
     }
 
+//          유저 정보
     public ApiResponseDto<MemberResponseDto> getMember(Member member) {
         Optional<Member> found = memberRepository.findByEmail(member.getEmail());
         if(found.isEmpty()){
@@ -91,6 +92,8 @@ public class MypageService {
         return ResponseUtils.ok(responseDto);
     }
 
+
+//           사용자 정보
     public List<ReviewResponseDto> getReview(Member member) {
         Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
         if(review.isEmpty()){

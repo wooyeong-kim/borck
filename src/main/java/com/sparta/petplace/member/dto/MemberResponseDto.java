@@ -15,6 +15,7 @@ public class MemberResponseDto {
     @Builder
     public MemberResponseDto(Member member) {
         this.nickname = member.getNickname();
+        this.email = member.getEmail();
         this.image = member.getImage();
     }
    public static MemberResponseDto from(Member member){
