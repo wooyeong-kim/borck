@@ -24,7 +24,7 @@ public enum Error {
     NOT_EXIST_COMMENT("400","댓글이 존재하지 않습니다"),
     NOT_EXIST_USER("400","사용자가 없습니다"),
     BAD_REQUEST("400", ""),
-
+    MAX_INPUT_IMAGE("400","최대 저장가능한 이미지 개수를 초과 했습니다."),
     // S3
     FAIL_S3_SAVE("400", "S3파일 저장 중 예외 발생"),
     FAIL_S3_DELETE("400","S3파일 삭제 중 예외 발생"),
