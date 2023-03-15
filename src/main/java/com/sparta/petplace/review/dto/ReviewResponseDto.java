@@ -20,12 +20,12 @@ public class ReviewResponseDto {
     private LocalDateTime modifiedAt;
 
     @Builder
-    public ReviewResponseDto(Review review, String image) {
+    public ReviewResponseDto(Review review) {
         this.id = review.getId();
         this.email = review.getMember().getEmail();
         this.star = review.getStar();
         this.review = review.getReview();
-        this.image = image;
+        this.image = review.getImage();
         this.nickname = review.getMember().getNickname();
         this.createdAt = review.getCreatedAt();
         this.modifiedAt = review.getModifiedAt();
