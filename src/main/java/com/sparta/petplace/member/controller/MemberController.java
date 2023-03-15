@@ -2,8 +2,6 @@ package com.sparta.petplace.member.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.petplace.common.ApiResponseDto;
-import com.sparta.petplace.common.ResponseUtils;
-import com.sparta.petplace.common.SuccessLoginResponse;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
@@ -15,7 +13,6 @@ import com.sparta.petplace.member.service.KakaoService;
 import com.sparta.petplace.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +50,9 @@ public class MemberController {
     @PostMapping("/business_signup")
     public ApiResponseDto<SuccessResponse> businessSignup(@Valid @RequestBody BusinessSignupRequestDto signupRequestDto,
                                                   BindingResult result) {
+        if (signupRequestDto.getBusiness().isEmpty()){
+            throw new CustomException(Error.WRONG_BUSINESS);
+        }
         if (result.hasErrors()){
             if (result.getFieldError().getDefaultMessage().equals("패스워드에러"))
                 throw new CustomException(Error.WRONG_PASSWORD_CHECK);

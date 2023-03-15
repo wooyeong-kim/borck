@@ -39,11 +39,10 @@ public class MypageController {
         return mypageService.getSave(userDetails.getMember());
     }
 
-    @PutMapping("/mypage/{user_id}")
+    @PutMapping("/mypage")
     public ApiResponseDto<SuccessResponse> modify(@ModelAttribute MypageModifyRequestDto requestDto,
-                                                         @PathVariable Long user_id,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return mypageService.modify(requestDto, userDetails.getMember(), user_id);
+        return mypageService.modify(requestDto, userDetails.getMember());
     }
 //      사용자 보여주기
     @GetMapping("/myreview")
