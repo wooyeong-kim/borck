@@ -41,4 +41,11 @@ public class Review extends Timestamped {
         this.post = post;
         this.member = member;
     }
+
+    public void update(ReviewRequestDto requestDto, String image, Member member) {
+        this.star = requestDto.getStar();
+        this.review = requestDto.getReview();
+        this.image = image;
+        this.member = member;
+    }
 }
