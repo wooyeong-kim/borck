@@ -1,6 +1,7 @@
 package com.sparta.petplace.post.repository;
 
 import com.sparta.petplace.post.entity.Post;
+import com.sparta.petplace.review.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<List<Post>> findAllByEmail(String email);
 
+
+    Optional<Post> findByEmail(String email);
 
 //    List<Post> findByCategoryAndKeywordContainingOrderByStarDesc(String category, String keyword);
 //

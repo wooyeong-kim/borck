@@ -6,9 +6,8 @@ import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
-import com.sparta.petplace.like.dto.LikesResponseDto;
-import com.sparta.petplace.like.entity.Likes;
 import com.sparta.petplace.like.repository.LikesRepository;
+import com.sparta.petplace.member.dto.MemberResponseDto;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
 import com.sparta.petplace.mypage.dto.MypageModifyRequestDto;
@@ -17,6 +16,9 @@ import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.repository.PostRepository;
+import com.sparta.petplace.review.dto.ReviewResponseDto;
+import com.sparta.petplace.review.entity.Review;
+import com.sparta.petplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,16 +38,18 @@ public class MypageService {
     private final LikesRepository likesRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
+    private final ReviewRepository reviewRepository;
 
 
 //      사업자 마이페이지 조회
     @Transactional(readOnly = true)
     public List<PostResponseDto> getView(Member member) {
-        Optional<Post> found = postRepository.findByEmail(member.getEmail());
+        Optional<List<Post>> found = postRepository.findAllByEmail(member.getEmail());
         if(found.isEmpty()){
             throw new CustomException(Error.NOT_FOUND_POST);
         }
-        List<PostResponseDto> responseDtos = getPostResponseDtos(member);
+        List<PostResponseDto> responseDtos = new ArrayList<>();
+        for(Post post : found.get()) responseDtos.add(PostResponseDto.of(post));
         return responseDtos;
     }
 
@@ -69,15 +73,28 @@ public class MypageService {
         return responseDtoList;
     }
 
-//      사용자 마이페이지 조회
 
-
-
+    // 마이페이지 정보 수정
     @Transactional
     public ApiResponseDto<SuccessResponse> modify(MypageModifyRequestDto requestDto, Member member, Long user_id) {
         Optional<Member> findMember = memberRepository.findByEmail(member.getEmail());
         String image = s3Service.uploadMypage(requestDto.getFile());
         findMember.get().update(requestDto.getNickname(), image);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정완료"));
+    }
+
+    public ApiResponseDto<MemberResponseDto> getMember(Member member) {
+        Optional<Member> found = memberRepository.findByEmail(member.getEmail());
+        MemberResponseDto responseDto = MemberResponseDto.from(member);
+        return ResponseUtils.ok(responseDto);
+    }
+
+    public List<ReviewResponseDto> getReview(Member member) {
+        Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
+        List<ReviewResponseDto> responseDtoList = new ArrayList<>();
+        for (Review r : review.get()) {
+            responseDtoList.add(ReviewResponseDto.from(r));
+        }
+        return responseDtoList;
     }
 }

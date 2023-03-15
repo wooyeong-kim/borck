@@ -28,8 +28,9 @@ public class PostController {
    }
 
    @PostMapping("/post")
-   public ApiResponseDto<PostResponseDto> createPost(@ModelAttribute PostRequestDto requestDto,
+   public ApiResponseDto<PostResponseDto> createPost(@ModelAttribute() PostRequestDto requestDto,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
+
       return postService.createPost(requestDto,userDetails.getMember());
    }
 
