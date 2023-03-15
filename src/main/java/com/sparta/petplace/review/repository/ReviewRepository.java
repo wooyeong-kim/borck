@@ -9,6 +9,10 @@ import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     void deleteByPostId(Long postId);
+
     Optional<Review> findByIdAndMember(Long id, Member member);
+
+
+
     Optional<List<Review>> findAllByMemberId(Long memberId);
 }
