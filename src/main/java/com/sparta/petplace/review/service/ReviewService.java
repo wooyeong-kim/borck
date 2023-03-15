@@ -3,6 +3,8 @@ package com.sparta.petplace.review.service;
 import com.sparta.petplace.S3Service;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
+import com.sparta.petplace.exception.CustomException;
+import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.repository.PostRepository;
@@ -25,7 +27,7 @@ public class ReviewService {
     @Transactional
     public ApiResponseDto<ReviewResponseDto> createReview(Long post_id, ReviewRequestDto requestDto, Member member) {
         Post post = postRepository.findById(post_id).orElseThrow(
-                () -> new IllegalArgumentException("게시글이 존재하지 않습니다.")
+                () -> new CustomException(Error.NOT_FOUND_POST)
         );
         if (requestDto.getImage() == null || requestDto.getImage().isEmpty()) {
             Review review = reviewRepository.save(new Review(requestDto, null, post, member));
@@ -36,20 +38,32 @@ public class ReviewService {
         return ResponseUtils.ok(ReviewResponseDto.from(review));
     }
 
-    @Transactional
-    public ApiResponseDto<ReviewResponseDto> updateReview(Long review_id, ReviewRequestDto requestDto, Member member) {
-        Review review = reviewRepository.findById(review_id).orElseThrow(
-                () -> new IllegalArgumentException("해당 후기가 존재하지 않습니다.")
-        );
-        Optional<Review> exist = reviewRepository.findByIdAndMember(review_id, member);
-        if (exist.isEmpty()) {
-            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
-        }
-        String image = s3Service.uploadMypage(requestDto.getImage());
-        if (image == null || image.isEmpty()) {
-            review.update(requestDto, image, member);
-        }
-        review.update(requestDto, image, member);
-        return ResponseUtils.ok(ReviewResponseDto.from(review));
-    }
+//    @Transactional
+//    public ApiResponseDto<ReviewResponseDto> updateReview(Long review_id, ReviewRequestDto requestDto, Member member) {
+//        Review review = reviewRepository.findById(review_id).orElseThrow(
+//                () -> new IllegalArgumentException("해당 후기가 존재하지 않습니다.")
+//        );
+//        Optional<Review> exist = reviewRepository.findByIdAndMember(review_id, member);
+//        if (exist.isEmpty()) {
+//            throw new CustomException(Error.NOT_MY_CONTENT);
+//        }
+//        if (review.getImage() != null) {
+//            s3Service.deleteFile(review.getImage());
+//            if (requestDto.getImage() == null || requestDto.getImage().isEmpty()) {
+//                review.update(requestDto, null, member);
+//                return ResponseUtils.ok(ReviewResponseDto.from(review));
+//            }
+//            String image = s3Service.uploadMypage(requestDto.getImage());
+//            review.update(requestDto, image, member);
+//            return ResponseUtils.ok(ReviewResponseDto.from(review));
+//        } else {
+//            if (requestDto.getImage() == null || requestDto.getImage().isEmpty()) {
+//                review.update(requestDto, null, member);
+//                return ResponseUtils.ok(ReviewResponseDto.from(review));
+//            }
+//            String image = s3Service.uploadMypage(requestDto.getImage());
+//            review.update(requestDto, image, member);
+//            return ResponseUtils.ok(ReviewResponseDto.from(review));
+//        }
+//    }
 }
