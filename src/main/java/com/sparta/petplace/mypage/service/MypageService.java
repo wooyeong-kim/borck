@@ -6,7 +6,6 @@ import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
-import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.dto.MemberResponseDto;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
@@ -75,13 +74,17 @@ public class MypageService {
 
     // 마이페이지 정보 수정
     @Transactional
-    public ApiResponseDto<SuccessResponse> modify(MypageModifyRequestDto requestDto, Member member, Long user_id) {
+    public ApiResponseDto<SuccessResponse> modify(MypageModifyRequestDto requestDto, Member member) {
         Optional<Member> findMember = memberRepository.findByEmail(member.getEmail());
+        if (findMember.isEmpty()){
+            throw new CustomException(Error.NOT_EXIST_USER);
+        }
         String image = s3Service.uploadMypage(requestDto.getFile());
         findMember.get().update(requestDto.getNickname(), image);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정완료"));
     }
 
+//          유저 정보
     public ApiResponseDto<MemberResponseDto> getMember(Member member) {
         Optional<Member> found = memberRepository.findByEmail(member.getEmail());
         if(found.isEmpty()){
@@ -91,6 +94,8 @@ public class MypageService {
         return ResponseUtils.ok(responseDto);
     }
 
+
+//           사용자 정보
     public List<ReviewResponseDto> getReview(Member member) {
         Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
         if(review.isEmpty()){
