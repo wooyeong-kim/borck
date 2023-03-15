@@ -18,4 +18,6 @@
 /.idea/workspace.xml
 /src/main/resources/
 /.idea/
+/.gradle/
+/build/
 application.yml
