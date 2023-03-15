@@ -3,6 +3,7 @@ package com.sparta.petplace.review.service;
 import com.sparta.petplace.S3Service;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
+import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
 import com.sparta.petplace.member.entity.Member;
@@ -13,6 +14,7 @@ import com.sparta.petplace.review.dto.ReviewResponseDto;
 import com.sparta.petplace.review.entity.Review;
 import com.sparta.petplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,5 +67,20 @@ public class ReviewService {
             review.update(requestDto, image, member);
             return ResponseUtils.ok(ReviewResponseDto.from(review));
         }
+    }
+
+    public ApiResponseDto<SuccessResponse> deleteReview(Long review_id, Member member) {
+        Review review = reviewRepository.findById(review_id).orElseThrow(
+                () -> new IllegalArgumentException("해당하는 후기가 존재하지 않습니다.")
+        );
+        Optional<Review> exist = reviewRepository.findByIdAndMember(review_id, member);
+        if (exist.isEmpty()) {
+            throw new CustomException(Error.NOT_MY_CONTENT);
+        }
+        if (review.getImage() != null) {
+            s3Service.deleteFile(review.getImage());
+        }
+        reviewRepository.deleteById(review_id);
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "후기 삭제 완료"));
     }
 }

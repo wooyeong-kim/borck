@@ -2,6 +2,7 @@ package com.sparta.petplace.review.controller;
 
 import com.sparta.petplace.auth.security.UserDetailsImpl;
 import com.sparta.petplace.common.ApiResponseDto;
+import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.review.dto.ReviewRequestDto;
 import com.sparta.petplace.review.dto.ReviewResponseDto;
 import com.sparta.petplace.review.service.ReviewService;
@@ -26,6 +27,12 @@ public class ReviewController {
                                                           @ModelAttribute ReviewRequestDto requestDto,
                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return reviewService.updateReview(review_id, requestDto, userDetails.getMember());
+    }
+
+    @DeleteMapping("/reviews/{review_id}")
+    public ApiResponseDto<SuccessResponse> deleteReview(@PathVariable Long review_id,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return reviewService.deleteReview(review_id, userDetails.getMember());
     }
 
 }
