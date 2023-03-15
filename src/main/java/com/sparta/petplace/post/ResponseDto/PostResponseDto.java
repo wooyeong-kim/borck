@@ -1,11 +1,13 @@
 package com.sparta.petplace.post.ResponseDto;
 
 import com.sparta.petplace.post.entity.Post;
+import com.sparta.petplace.review.dto.ReviewResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -16,7 +18,6 @@ public class PostResponseDto {
     private String title;
     private String ceo;
     private String category;
-//    private List<ContentsResponseDto> contents;
     private List<String> image;
     private String mapdata;
     private String address;
@@ -24,12 +25,13 @@ public class PostResponseDto {
     private String startTime;
     private String endTime;
     private String closedDay;
+    private List<ReviewResponseDto> review;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private boolean isSave;
 
     @Builder
-    public PostResponseDto(Post post, List<String> image, boolean isSave){// List<ContentsResponse> posts 추가
+    public PostResponseDto(Post post, List<String> image, boolean isSave, List<ReviewResponseDto> review){
         this.id = post.getId();
         this.email = post.getEmail();
         this.title = post.getTitle();
@@ -42,6 +44,7 @@ public class PostResponseDto {
         this.startTime = post.getStartTime();
         this.endTime = post.getEndTime();
         this.closedDay = post.getClosedDay();
+        this.review = review;
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();
         this.isSave = isSave;
@@ -58,10 +61,11 @@ public class PostResponseDto {
                 .image(image)
                 .build();
     }
-    public static PostResponseDto of(Post post, List<String> image, boolean isSave){
+    public static PostResponseDto of(Post post, List<String> image,List<ReviewResponseDto> responseDtoList,boolean isSave){
         return PostResponseDto.builder()
                 .post(post)
                 .image(image)
+                .review(responseDtoList)
                 .isSave(isSave)
                 .build();
     }

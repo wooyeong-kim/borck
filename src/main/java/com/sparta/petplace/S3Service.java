@@ -104,9 +104,15 @@ public class S3Service {
         fileValidate.add(".jpg");
         fileValidate.add(".jpeg");
         fileValidate.add(".png");
+        fileValidate.add(".jfif");
+        fileValidate.add(".jif");
+        fileValidate.add(".jpe");
         fileValidate.add(".JPG");
         fileValidate.add(".JPEG");
         fileValidate.add(".PNG");
+        fileValidate.add(".JFIF");
+        fileValidate.add(".JIF");
+        fileValidate.add(".JPE");
         String idxFileName = fileName.substring(fileName.lastIndexOf("."));
         if (!fileValidate.contains(idxFileName)) {
             throw new CustomException(Error.WRONG_IMAGE_FORMAT);

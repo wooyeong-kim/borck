@@ -20,12 +20,16 @@ import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.entity.PostImage;
 import com.sparta.petplace.post.repository.PostImageRepository;
 import com.sparta.petplace.post.repository.PostRepository;
+import com.sparta.petplace.review.dto.ReviewResponseDto;
+import com.sparta.petplace.review.entity.Review;
+import com.sparta.petplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +43,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MypageRepository mypageRepository;
     private final LikesRepository likesRepository;
+    private final ReviewRepository reviewRepository;
 
 
     @Transactional
@@ -47,11 +52,11 @@ public class PostService {
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
 
         for (Post p : posts){
-//            p.getReviews().sort(Comparator.comparing(Review::gerCreatedAt).reversed());
-//            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-//            for(Review r : p.getReviews()){
-//                reviewResponseDtos.add(new ReviewResponseDtoa(r));
-//            }
+            p.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
+            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+            for(Review r : p.getReviews()){
+                reviewResponseDtos.add(ReviewResponseDto.from(r));
+            }
             postResponseDtos.add(PostResponseDto.builder()
                     .post(p)
                     .build());
@@ -61,25 +66,25 @@ public class PostService {
 
     @Transactional
     public ApiResponseDto<PostResponseDto> createPost(PostRequestDto requestDto, Member member) {
-       Member member1 = memberRepository.findByLoginType(member.getLoginType());
-       if(!member1.getLoginType().equals(LoginType.BUSINESS)) {
-           throw new CustomException(Error.NO_AUTHORITY);
-       }
-        if(requestDto.getImage().isEmpty()){
+        Member member1 = memberRepository.findByLoginType(member.getLoginType());
+        if (!member1.getLoginType().equals(LoginType.BUSINESS)) {
+            throw new CustomException(Error.NO_AUTHORITY);
+        }
+        if (requestDto.getImage() == null || requestDto.getImage().isEmpty()) {
             throw new CustomException(Error.WRONG_INPUT_CONTEN);
         }
         if (requestDto.getImage().size() > 4) {
-            throw new RuntimeException("사진은 4개이상 저장할 수 없습니다.");
+            throw new CustomException(Error.MAX_INPUT_IMAGE);
         }
         Post posts = Post.of(requestDto, member);
-        postRepository.save(posts);
         List<String> imgList = new ArrayList<>();
         List<String> img_url = s3Service.upload(requestDto.getImage());
-        for (String image: img_url) {
-            PostImage img = new PostImage(posts,image);
+        for (String image : img_url) {
+            PostImage img = new PostImage(posts, image);
             postImageRepository.save(img);
             imgList.add(image);
         }
+        postRepository.save(posts);
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
     }
     @Transactional
@@ -92,16 +97,16 @@ public class PostService {
             images.add(postImage.getImage());
         }
 
-//        posts.getReviews().sort(Comparator.comparing(Review::gerCreatedAt).reversed());
-//        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-//        for (Review r : p.getReviews()) {
-//            reviewResponseDtos.add(new ReviewResponseDtoa(r));
-//        }
+        posts.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
+        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+        for (Review r : posts.getReviews()) {
+            reviewResponseDtos.add(ReviewResponseDto.from(r));
+        }
         Likes likes = likesRepository.findByPostIdAndMember(post_id, member);
         if(likes==null){
-            return PostResponseDto.of(posts ,images,false);
+            return PostResponseDto.of(posts ,images ,reviewResponseDtos,false);
         }else {
-            return PostResponseDto.of(posts ,images ,true);
+            return PostResponseDto.of(posts ,images ,reviewResponseDtos,true);
         }
     }
     @Transactional
@@ -155,6 +160,7 @@ public class PostService {
             s3Service.deleteFile(postImage.getImage());
             postImageRepository.delete(postImage);
         }
+        reviewRepository.deleteByPostId(post_id);
         likesRepository.deleteByPostId(post_id);
         mypageRepository.deleteByPostId(post_id);
         postRepository.deleteById(post_id);

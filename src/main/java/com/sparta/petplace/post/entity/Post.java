@@ -3,6 +3,7 @@ package com.sparta.petplace.post.entity;
 import com.sparta.petplace.common.Timestamped;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
+import com.sparta.petplace.review.entity.Review;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +45,8 @@ public class Post extends Timestamped {
     private String endTime;
     @Column(nullable = false)
     private String closedDay;
+    @OneToMany(mappedBy = "post")
+    private List<Review> reviews =new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID",nullable = false)
     private Member member;
