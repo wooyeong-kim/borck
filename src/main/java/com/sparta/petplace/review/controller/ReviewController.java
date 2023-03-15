@@ -21,11 +21,11 @@ public class ReviewController {
         return reviewService.createReview(post_id, requestDto, userDetails.getMember());
     }
 
-//    @PutMapping("/reviews/{review_id}")
-//    public ApiResponseDto<ReviewResponseDto> updateReview(@PathVariable Long review_id,
-//                                                          @ModelAttribute ReviewRequestDto requestDto,
-//                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return reviewService.updateReview(review_id, requestDto, userDetails.getMember());
-//    }
+    @PutMapping("/reviews/{review_id}")
+    public ApiResponseDto<ReviewResponseDto> updateReview(@PathVariable Long review_id,
+                                                          @ModelAttribute ReviewRequestDto requestDto,
+                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return reviewService.updateReview(review_id, requestDto, userDetails.getMember());
+    }
 
 }
