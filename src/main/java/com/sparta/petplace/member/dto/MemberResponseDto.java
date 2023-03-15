@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberResponseDto {
     private String nickname;
+    private String email;
     private String image;
 
     @Builder
