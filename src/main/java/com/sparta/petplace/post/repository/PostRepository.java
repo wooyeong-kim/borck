@@ -10,7 +10,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAByCategory(String keyword);
     Optional<Post> findById(Long post_id);
 
-    Optional<Post> findByEmail(String email);
+
+
+    Optional<List<Post>> findAllByEmail(String email);
+
 
 //    List<Post> findByCategoryAndKeywordContainingOrderByStarDesc(String category, String keyword);
 //
