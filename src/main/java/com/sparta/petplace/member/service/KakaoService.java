@@ -56,6 +56,7 @@ public class KakaoService {
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .nickcame(member.getNickname())
                 .loginType(member.getLoginType())
+                .socialUserInfoDto(new SocialUserInfoDto())
                 .build();
         return ResponseUtils.ok(loginResponseDto);
     }
@@ -102,8 +103,10 @@ public class KakaoService {
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
-        log.info("카카오 사용자 정보: "+id+", "+nickname+", "+email);
-        return new SocialUserInfoDto(id, nickname, email);
+        String image = jsonNode.get("kakao_image")
+                        .get("image").asText();
+        log.info("카카오 사용자 정보: "+id+", "+nickname+", "+email+", "+image);
+        return new SocialUserInfoDto(id, nickname, email, image);
     }
 
     private Member registerKakaoUserIfNeeded(SocialUserInfoDto userInfoDto){
@@ -114,6 +117,7 @@ public class KakaoService {
                     .email(userInfoDto.getEmail())
                     .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                     .nickname(userInfoDto.getNickname())
+                    .image(String.valueOf(userInfoDto.getImage()))
                     .loginType(LoginType.KAKAO_USER)
                     .build());
         }else{
