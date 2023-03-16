@@ -72,13 +72,9 @@ public class KakaoService {
 
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        log.error("에러1");
         body.add("grant_type", "authorization_code");
-        log.error("에러2");
         body.add("client_id", "bdb9f0d03a95450cca094def1b12464f"); //REST API KEY
-        log.error("에러3");
         body.add("redirect_uri", "http://localhost:8080/kakao/callback");
-        log.error("에러4");
         body.add("code", code);
 
         // HTTP 요청 보내기
