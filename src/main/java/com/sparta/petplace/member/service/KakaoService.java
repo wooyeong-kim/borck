@@ -67,7 +67,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type","authorization_code");
         body.add("client_id","94c5891ab6cec1f5eddede64f8358dd9");
-        body.add("redurect_uri","http://localhost:3000/api/member/kakao/callback");
+        body.add("redurect_uri","http://localhost:3000/kakao/callback");
         body.add("code",code);
         HttpEntity<MultiValueMap<String,String>> kakaoTokenRequest = new HttpEntity<>(body,headers);
         RestTemplate rt = new RestTemplate();
