@@ -8,10 +8,12 @@ import lombok.Getter;
 public class LoginResponseDto {
     private String nickcame;
     private LoginType loginType;
+    private SocialUserInfoDto socialUserInfoDto;
     @Builder
-    public LoginResponseDto(String nickcame, LoginType loginType) {
+    public LoginResponseDto(String nickcame, LoginType loginType,SocialUserInfoDto socialUserInfoDto) {
         this.loginType = loginType;
         this.nickcame = nickcame;
+        this.socialUserInfoDto = socialUserInfoDto;
     }
 
 }
