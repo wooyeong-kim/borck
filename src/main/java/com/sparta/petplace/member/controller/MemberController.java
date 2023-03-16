@@ -106,7 +106,6 @@ public class MemberController {
 
     @GetMapping("/kakao/callback")
     public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response)throws JsonProcessingException {
-        log.error("에러1");
         return kakaoService.kakaoLogin(code, response);
     }
 
