@@ -74,7 +74,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "bdb9f0d03a95450cca094def1b12464f"); //REST API KEY
-        body.add("redirect_uri", "http://localhost:8080/kakao/callback");
+        body.add("redirect_uri", "https://petplace.site/kakao/callback");
         body.add("code", code);
 
         // HTTP 요청 보내기
@@ -120,9 +120,11 @@ public class KakaoService {
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
+        String image = jsonNode.get("profile_image")
+                        .get("image").asText();
 
-        log.info("카카오 사용자 정보: " + id + ", " + nickname + ", " + email);
-        return new SocialUserInfoDto(id, nickname, email);
+        log.info("카카오 사용자 정보: " + id + ", " + nickname + ", " + email+ ", " + image);
+        return new SocialUserInfoDto(id, nickname, email,image);
     }
 
     // 3. 필요시에 회원가입
@@ -135,6 +137,7 @@ public class KakaoService {
                     .nickname(userInfo.getNickname())
                     .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                     .email(userInfo.getEmail())
+                    .image(userInfo.getImage())
                     .loginType(LoginType.KAKAO_USER)
                     .build());
         }else {
