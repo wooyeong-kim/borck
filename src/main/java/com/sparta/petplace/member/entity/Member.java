@@ -45,12 +45,13 @@ public class Member {
         this.loginType = loginType;
     }
 
-    public static Member of (String email, String password, String nickname, String business, LoginType loginType) {
+    public static Member of (String email, String password, String nickname, String business, LoginType loginType,String image) {
         return Member.builder()
                 .email(email)
                 .password(password)
                 .nickname(nickname)
                 .business(business)
+                .image(image)
                 .loginType(loginType)
                 .build();
     }
