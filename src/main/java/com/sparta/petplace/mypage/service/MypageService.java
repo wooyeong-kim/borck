@@ -6,6 +6,8 @@ import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
+import com.sparta.petplace.like.entity.Likes;
+import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.dto.MemberResponseDto;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
@@ -32,7 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class MypageService {
-    private final MypageRepository mypageRepository;
+    private final LikesRepository likesRepository;
     private final PostRepository postRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
@@ -51,23 +53,15 @@ public class MypageService {
         return responseDtos;
     }
 
-//       게시물 보여주기 중복 메서드
-    private List<PostResponseDto> getPostResponseDtos(Member member) {
-        List<Mypage> mypageList = mypageRepository.findByMemberId(member.getId());
-        List<PostResponseDto> responseDtos = new ArrayList<>();
-        for(Mypage mypage : mypageList){
-            responseDtos.add(PostResponseDto.of(mypage.getPost()));
-        }
-        return responseDtos;
-    }
 
 //    찜한거 보여주기
     @Transactional(readOnly = true)
     public List<PostResponseDto> getSave(Member member) {
-        List<Mypage> mypageList = mypageRepository.findByMemberId(member.getId());
+//        List<Mypage> mypageList = mypageRepository.findByMemberId(member.getId());
+        List<Likes> likesList = likesRepository.findAllByMemberId(member.getId());
         List<PostResponseDto> responseDtoList = new ArrayList<>();
-        for(Mypage mypage:mypageList)
-            responseDtoList.add(PostResponseDto.of(mypage.getPost()));
+        for(Likes likes:likesList)
+            responseDtoList.add(PostResponseDto.of(likes.getPost()));
         return responseDtoList;
     }
 
