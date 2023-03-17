@@ -5,6 +5,7 @@ import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LikesRepository extends JpaRepository<Likes, Long> {
@@ -13,5 +14,7 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
     Likes findByPostIdAndMember(Long post_id , Member member);
 
     void deleteByPostId(Long postId);
+
+    List<Likes> findAllByMemberId(Long id);
 }
 
