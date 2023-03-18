@@ -16,18 +16,18 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts/{post_id}")
+@RequestMapping("{post_id}")
 public class LikesController {
     private LikesService likesService;
 
-//    찜
-    @PostMapping("/likes")
-    public ApiResponseDto<LikesResponseDto> likes(@PathVariable Long post_id,
+    //게시글 찜하기
+    @PostMapping("/like")
+    public ApiResponseDto<LikesResponseDto> like(@PathVariable Long post_id,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
-    return likesService.likes(post_id,userDetails);
+    return likesService.like(post_id,userDetails);
     }
 
-//    취소
+    //게시글 찜하기 취소
     @DeleteMapping("/cancel")
     public ApiResponseDto<LikesResponseDto> cancel(@PathVariable Long post_id,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){

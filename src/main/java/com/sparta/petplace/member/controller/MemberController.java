@@ -27,10 +27,8 @@ public class MemberController {
 
     private final MemberService memberService;
     private final KakaoService kakaoService;
-    /**
-     * 회원가입 기능 Controller
-     */
 
+    //일반유저 회원가입
     @PostMapping("/signup")
     public ApiResponseDto<SuccessResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto,
                                                   BindingResult result) {
@@ -44,9 +42,8 @@ public class MemberController {
         }
         return memberService.signup(signupRequestDto);
     }
-    /**
-     * 사업자 회원가입
-     **/
+
+    //사업자 회원가입
     @PostMapping("/business_signup")
     public ApiResponseDto<SuccessResponse> businessSignup(@Valid @RequestBody BusinessSignupRequestDto signupRequestDto,
                                                   BindingResult result) {
@@ -66,46 +63,36 @@ public class MemberController {
         return memberService.businessSignup(signupRequestDto);
     }
 
-    /**
-     * 로그인 메서드
-     **/
+
+    //로그인
     @PostMapping("/login")
     public ApiResponseDto<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto,
                                                   HttpServletResponse response){
         return memberService.login(requestDto,response);
     }
 
-    /**
-     * 회원명 중복 체크
-     */
-
-    @GetMapping("/signup")
-    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam("email") String email) {
+    //회원명 중복 체크
+    @GetMapping("/signup/usercheck")
+    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam(value = "email") String email) {
         return   memberService.memberCheck(email);
     }
 
-
-    /**
-     * 사업자명 중복체크
-     */
+    //사업자명 중복체크
     @GetMapping("/signup/businesscheck")
-    public ApiResponseDto<SuccessResponse> businessMemberCheck( @RequestParam("email") String email) {
-        return  memberService.businessMemberCheck(email);
+    public ApiResponseDto<SuccessResponse> businessMemberCheck( @RequestParam(value = "business") String business) {
+        return  memberService.businessMemberCheck(business);
     }
 
-
-    /**
-     * 회원 토큰 갱신
-     **/
+    //회원 토큰 갱신
     @GetMapping("/token")
     public  ApiResponseDto<SuccessResponse> issuedToken(HttpServletRequest request,
                                                         HttpServletResponse response){
         return memberService.issueToken(request,response);
     }
 
-
+    //카카오 로그인
     @GetMapping("/kakao/callback")
-    public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response)throws JsonProcessingException {
+    public ApiResponseDto<LoginResponseDto> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response)throws JsonProcessingException {
         return kakaoService.kakaoLogin(code, response);
     }
 

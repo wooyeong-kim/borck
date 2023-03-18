@@ -40,45 +40,47 @@ public class MemberService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * 회원가입 기능
-     */
+
+    // 회원가입기능
     @Transactional
     public ApiResponseDto<SuccessResponse> signup(SignupRequestDto signupRequestDto) {
         memberCheck(signupRequestDto.getEmail());
+        String basicImg = "https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/defaultImage.webp";
         memberRepository.save(Member.builder()
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                 .nickname(signupRequestDto.getNickname())
                 .email(signupRequestDto.getEmail())
+                .image(basicImg)
                 .loginType(LoginType.USER)
                 .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
     }
 
-    /**
-     * 사업자 회원가입 기능
-     */
+
+    //사업자 회원가입 기능
     public ApiResponseDto<SuccessResponse> businessSignup(BusinessSignupRequestDto signupRequestDto) {
         memberCheck(signupRequestDto.getEmail());
+        String basicImg = "https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/defaultImage.webp";
         memberRepository.save(Member.builder()
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                 .nickname(signupRequestDto.getNickname())
                 .email(signupRequestDto.getEmail())
                 .business(signupRequestDto.getBusiness())
+                .image(basicImg)
                 .loginType(LoginType.BUSINESS)
                 .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
     }
 
-    /**
-     * 로그인 기능
-     */
+
+    //로그인
     @Transactional
     public ApiResponseDto<LoginResponseDto> login(LoginRequestDto requestDto, HttpServletResponse response) {
         String email = requestDto.getEmail();
         String password = requestDto.getPassword();
 
         Optional<Member> findMember = memberRepository.findByEmail(email);
+
         if (findMember.isEmpty()) {
             throw new CustomException(NOT_EXIST_USER);
         }
@@ -98,18 +100,18 @@ public class MemberService {
         }
 
         jwtUtil.setHeader(response, tokenDto);
-
+        String img = findMember.get().getImage();
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
                 .loginType(findMember.get().getLoginType())
                 .nickcame(findMember.get().getNickname())
+                .img(img)
                 .build();
 
         return ResponseUtils.ok(loginResponseDto);
     }
 
-    /**
-     * 이메일 중복 검사
-     **/
+
+    //메일 중복 검사
     @Transactional
     public ApiResponseDto<SuccessResponse> memberCheck(String email) {
         Optional<Member> findMember = memberRepository.findByEmail(email);
@@ -119,9 +121,8 @@ public class MemberService {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용 가능한 계정입니다."));
     }
 
-    /**
-     * 사업자 번호 중복검사
-     **/
+
+    //사업자 번호 중복검사
     @Transactional
     public ApiResponseDto<SuccessResponse> businessMemberCheck(String business) {
         Optional<Member> findMember = memberRepository.findByBusiness(business);
@@ -132,15 +133,12 @@ public class MemberService {
     }
 
 
-    /**
-     * 토큰 갱신
-     **/
+    //토큰 갱신
     public ApiResponseDto<SuccessResponse> issueToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.resolveToken(request, "Refresh");
         if (!jwtUtil.refreshTokenValidation(refreshToken)) {
             throw new CustomException(Error.WRONG_TOKEN);
         }
-
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(jwtUtil.getUserId(refreshToken), "Access"));
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "토큰 갱신 성공."));
     }

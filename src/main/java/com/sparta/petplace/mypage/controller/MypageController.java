@@ -19,33 +19,34 @@ import java.util.List;
 public class MypageController {
     private final MypageService mypageService;
 
-//      유저 정보
+
+    //유저 정보
     @GetMapping("/mypage")
     public ApiResponseDto<MemberResponseDto> member(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return mypageService.getMember(userDetails.getMember());
     }
 
+    //유저 정보 수정
+    @PatchMapping("/mypage")
+    public ApiResponseDto<SuccessResponse> modify(@ModelAttribute MypageModifyRequestDto requestDto,
+                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return mypageService.modify(requestDto, userDetails.getMember());
+    }
 
-//      사업자 정보
+    //사업자가 작성한 게시글 조회
     @GetMapping("/mypage/business")
     public List<PostResponseDto> getView (@AuthenticationPrincipal UserDetailsImpl userDetails){
         return mypageService.getView(userDetails.getMember());
     }
-//    @GetMapping("/myreview")
 
-//      찜 보여주기
-    @GetMapping("/mypage/dibs")
+    //찜한 게시글 보여주기
+    @GetMapping("/mypage/favorite")
     public List<PostResponseDto> getSave(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return mypageService.getSave(userDetails.getMember());
     }
 
-    @PutMapping("/mypage")
-    public ApiResponseDto<SuccessResponse> modify(@ModelAttribute MypageModifyRequestDto requestDto,
-                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return mypageService.modify(requestDto, userDetails.getMember());
-    }
-//      사용자 보여주기
-    @GetMapping("/myreview")
+    //사용자 보여주기
+    @GetMapping("/review")
     public List<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails){
         return mypageService.getReview(userDetails.getMember());
     }

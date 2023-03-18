@@ -20,8 +20,9 @@ public class LikesService {
     private final LikesRepository likesRepository;
     private final PostRepository postRepository;
 
+    //게시글 찜하기
     @Transactional
-    public ApiResponseDto<LikesResponseDto> likes(Long postId, UserDetailsImpl userDetails) {
+    public ApiResponseDto<LikesResponseDto> like(Long postId, UserDetailsImpl userDetails) {
         Post post = getPost(postId);
         Optional<Likes> likes = likesRepository.findByPostAndMember(post,userDetails.getMember());
         if(likes.isEmpty()){
@@ -30,6 +31,8 @@ public class LikesService {
         }
         return ResponseUtils.ok(LikesResponseDto.of(true, "찜", 200));
     }
+
+    //게시글 찜히기 취소
     @Transactional
     public ApiResponseDto<LikesResponseDto> cancel(Long postId, UserDetailsImpl userDetails) {
         Post post = getPost(postId);
@@ -40,7 +43,8 @@ public class LikesService {
         return ResponseUtils.ok(LikesResponseDto.of(true, "취소", 200));
     }
 
-//      예외
+    // ======== 메서드 ========
+    //예외
     private Post getPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new IllegalArgumentException("게시물을 찾을 수 없습니다.")

@@ -11,6 +11,7 @@ import com.sparta.petplace.auth.jwt.TokenDto;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
+import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SocialUserInfoDto;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
@@ -37,7 +38,7 @@ public class KakaoService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
-    public ApiResponseDto<SuccessResponse> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ApiResponseDto<LoginResponseDto> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -60,7 +61,7 @@ public class KakaoService {
         }
 
         jwtUtil.setHeader(response, tokenDto);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용가능한 계정입니다"));
+        return ResponseUtils.ok(LoginResponseDto.of(member.getNickname(), member.getLoginType()));
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -74,7 +75,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "bdb9f0d03a95450cca094def1b12464f"); //REST API KEY
-        body.add("redirect_uri", "https://petplace.site/kakao/callback");
+        body.add("redirect_uri", "http://localhost:3000/Redirect");
         body.add("code", code);
 
         // HTTP 요청 보내기
@@ -120,11 +121,9 @@ public class KakaoService {
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
-        String image = jsonNode.get("profile_image")
-                        .get("image").asText();
 
-        log.info("카카오 사용자 정보: " + id + ", " + nickname + ", " + email+ ", " + image);
-        return new SocialUserInfoDto(id, nickname, email,image);
+        log.info("카카오 사용자 정보: " + id + ", " + nickname + ", " + email);
+        return new SocialUserInfoDto(id, nickname, email);
     }
 
     // 3. 필요시에 회원가입
@@ -137,7 +136,6 @@ public class KakaoService {
                     .nickname(userInfo.getNickname())
                     .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                     .email(userInfo.getEmail())
-                    .image(userInfo.getImage())
                     .loginType(LoginType.KAKAO_USER)
                     .build());
         }else {

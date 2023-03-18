@@ -56,6 +56,10 @@ public class Member {
                 .build();
     }
 
+    public void update(String nickname){
+        this.nickname =nickname;
+    }
+
     public void update(String nickname, String image) {
         this.nickname = nickname;
         this.image = image;
