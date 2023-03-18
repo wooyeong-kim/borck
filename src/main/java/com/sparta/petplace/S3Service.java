@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class S3Service {
 
@@ -60,16 +62,17 @@ public class S3Service {
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
 
-            try(InputStream inputStream = file.getInputStream()) {
-                s3Client.putObject(new PutObjectRequest(bucket+"/post/image", fileName, inputStream, objectMetadata)
+             try (InputStream inputStream = file.getInputStream()) {
+                s3Client.putObject(new PutObjectRequest(bucket + "/post/image", fileName, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
-                imgUrlList.add(s3Client.getUrl(bucket+"/post/image", fileName).toString());
-            } catch(IOException e) {
+                imgUrlList.add(s3Client.getUrl(bucket + "/post/image", fileName).toString());
+            } catch (IOException e) {
                 throw new CustomException(Error.FAIL_S3_SAVE);
             }
         }
         return imgUrlList;
     }
+
 
     public void deleteFile(String url) {
         String key = extractKeyFromUrl(url);
@@ -82,12 +85,7 @@ public class S3Service {
 
     private String extractKeyFromUrl(String url) {
         // URL에서 파일 키 추출
-        // ex: https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/post/image/b3dadecf-00a1-4431-bf5a-56c5c04e3624.png
-        String prefix = "https://s3." + region + ".amazonaws.com/" + bucket + "/";
-        if (!url.startsWith(prefix)) {
-            throw new CustomException(Error.FAIL_S3_DELETE);
-        }
-        return url.substring(prefix.length());
+        return url.substring(59);
     }
 
     // 이미지파일명 중복 방지
@@ -119,6 +117,7 @@ public class S3Service {
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
+
     public String uploadMypage(MultipartFile file) {
         String imgUrlList;
         String fileName = createFileName(file.getOriginalFilename());
@@ -126,14 +125,16 @@ public class S3Service {
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
 
-        try(InputStream inputStream = file.getInputStream()) {
-            s3Client.putObject(new PutObjectRequest(bucket+"/post/image", fileName, inputStream, objectMetadata)
+        try (InputStream inputStream = file.getInputStream()) {
+            s3Client.putObject(new PutObjectRequest(bucket + "/post/image", fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
-            imgUrlList =(s3Client.getUrl(bucket+"/post/image", fileName).toString());
-        } catch(IOException e) {
+            imgUrlList = (s3Client.getUrl(bucket + "/post/image", fileName).toString());
+        } catch (IOException e) {
             throw new CustomException(Error.FAIL_S3_SAVE);
         }
 
         return imgUrlList;
     }
+
+
 }

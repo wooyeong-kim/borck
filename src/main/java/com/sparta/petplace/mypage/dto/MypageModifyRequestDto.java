@@ -9,5 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class MypageModifyRequestDto {
     private String nickname;
-    private MultipartFile file;
+    private MultipartFile image;
 }
