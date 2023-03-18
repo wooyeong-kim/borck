@@ -7,47 +7,71 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class PostResponseDto {
     private Long id;
+
     private String email;
     private String title;
     private String ceo;
+    private String contents;
     private String category;
-    private List<String> image;
-    private String mapdata;
+    private String cost;
+    private String lat;
+    private String lng;
     private String address;
     private String telNum;
     private String startTime;
     private String endTime;
     private String closedDay;
+    private String reSizeImage;
+    private Double distance;
+    private Boolean aboolean1;
+    private Boolean aboolean2;
+
+
+    private Integer star;
+    private int reviewCount;
+
+    private List<String> image;
     private List<ReviewResponseDto> review;
+
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
     private boolean isSave;
 
     @Builder
-    public PostResponseDto(Post post, List<String> image, boolean isSave, List<ReviewResponseDto> review){
+    public PostResponseDto(Post post, List<String> image, boolean isSave, List<ReviewResponseDto> review, int reviewCount , Integer star , Double distance){
         this.id = post.getId();
-        this.email = post.getEmail();
-        this.title = post.getTitle();
+        this.reSizeImage = post.getResizeImage();
+        this.modifiedAt = post.getModifiedAt();
+        this.createdAt = post.getCreatedAt();
+        this.aboolean1 = post.getAboolean1();
+        this.aboolean2 = post.getAboolean2();
+        this.startTime = post.getStartTime();
+        this.closedDay = post.getClosedDay();
         this.category = post.getCategory();
-        this.ceo = post.getCeo();
-        this.image = image;
-        this.mapdata = post.getMapdata();
+        this.contents = post.getContents();
+        this.endTime = post.getEndTime();
         this.address = post.getAddress();
         this.telNum = post.getTelNum();
-        this.startTime = post.getStartTime();
-        this.endTime = post.getEndTime();
-        this.closedDay = post.getClosedDay();
+        this.email = post.getEmail();
+        this.title = post.getTitle();
+        this.cost = post.getCost();
+        this.ceo = post.getCeo();
+        this.lat = post.getLat();
+        this.lng = post.getLng();
+        this.reviewCount = reviewCount;
         this.review = review;
-        this.createdAt = post.getCreatedAt();
-        this.modifiedAt = post.getModifiedAt();
+        this.distance= distance;
         this.isSave = isSave;
+        this.image = image;
+        this.star = star;
     }
 
     public static PostResponseDto of(Post post){
@@ -61,11 +85,13 @@ public class PostResponseDto {
                 .image(image)
                 .build();
     }
-    public static PostResponseDto of(Post post, List<String> image,List<ReviewResponseDto> responseDtoList,boolean isSave){
+    public static PostResponseDto of(Post post, List<String> image,List<ReviewResponseDto> responseDtoList,boolean isSave , int reviewCount, Integer star){
         return PostResponseDto.builder()
                 .post(post)
                 .image(image)
                 .review(responseDtoList)
+                .reviewCount(reviewCount)
+                .star(star)
                 .isSave(isSave)
                 .build();
     }

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -27,44 +29,89 @@ public class Post extends Timestamped {
     private String title;
     @Column(nullable = false)
     private String category;
-    @Column(nullable = false)
+    @Column
     private String contents;
     @OneToMany(mappedBy = "post")
     private List<PostImage> image = new ArrayList<>();
+    @Column
+    private String resizeImage;
     @Column(nullable = false)
-    private String mapdata;
+    private String lat;
+    @Column(nullable = false)
+    private String lng;
     @Column(nullable = false)
     private String address;
     @Column(nullable = false)
     private String telNum;
     @Column(nullable = false)
     private String ceo;
-    @Column(nullable = false)
+    @Column
     private String startTime;
-    @Column(nullable = false)
+    @Column
     private String endTime;
     @Column(nullable = false)
     private String closedDay;
+    // 병원 : 기본 진료비, 미용 : 기본 미용비, 카페 : 입장료
+    @Column
+    private String cost;
+    // 병원 : 야간진료, 미용 : 예약여부
+    @Column
+    private Boolean aboolean1;
+    // 미용 : 주차여부, 카페 : 주차여부
+    @Column
+    private Boolean aboolean2;
+    @Column
+    private Integer star;
     @OneToMany(mappedBy = "post")
     private List<Review> reviews =new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID",nullable = false)
     private Member member;
 
+
+
     @Builder
-    public Post(PostRequestDto requestDto, Member member) {
+    public Post(PostRequestDto requestDto, Member member , Integer star, String resizeImage ) {
         this.email = member.getEmail();
         this.title = requestDto.getTitle();
         this.category = requestDto.getCategory();
         this.contents = requestDto.getContents();
-        this.mapdata = requestDto.getMapdata();
+        this.lat = requestDto.getLat();
+        this.lng = requestDto.getLng();
         this.address = requestDto.getAddress();
         this.telNum = requestDto.getTelNum();
         this.ceo = requestDto.getCeo();
         this.startTime = requestDto.getStartTime();
         this.endTime = requestDto.getEndTime();
         this.closedDay = requestDto.getClosedDay();
+        this.cost = requestDto.getCost();
+        this.aboolean1 = requestDto.getAboolean1();
+        this.aboolean2 = requestDto.getAboolean2();
+        this.resizeImage = resizeImage;
+        this.star = star;
         this.member = member;
+    }
+
+
+
+
+    public void update(PostRequestDto requestDto , List<PostImage> image, Integer star) {
+        this.title = requestDto.getTitle();
+        this.category = requestDto.getCategory();
+        this.contents = requestDto.getContents();
+        this.lat = requestDto.getLat();
+        this.lng = requestDto.getLng();
+        this.address = requestDto.getAddress();
+        this.telNum = requestDto.getTelNum();
+        this.ceo = requestDto.getCeo();
+        this.startTime = requestDto.getStartTime();
+        this.endTime = requestDto.getEndTime();
+        this.closedDay = requestDto.getClosedDay();
+        this.cost = requestDto.getCost();
+        this.aboolean1 = requestDto.getAboolean1();
+        this.aboolean2 = requestDto.getAboolean2();
+        this.image = image;
+        this.star = star;
     }
 
     public static Post of (PostRequestDto requestDto, Member member){
@@ -74,17 +121,11 @@ public class Post extends Timestamped {
                 build();
     }
 
-    public void update(PostRequestDto requestDto , List<PostImage> image) {
-        this.title = requestDto.getTitle();
-        this.category = requestDto.getCategory();
-        this.contents = requestDto.getContents();
-        this.mapdata = requestDto.getMapdata();
-        this.address = requestDto.getAddress();
-        this.telNum = requestDto.getTelNum();
-        this.ceo = requestDto.getCeo();
-        this.startTime = requestDto.getStartTime();
-        this.endTime = requestDto.getEndTime();
-        this.closedDay = requestDto.getClosedDay();
-        this.image = image;
+    public static Post of (PostRequestDto requestDto, Member member, Integer star){
+        return builder().
+                requestDto(requestDto).
+                star(star).
+                member(member).
+                build();
     }
 }

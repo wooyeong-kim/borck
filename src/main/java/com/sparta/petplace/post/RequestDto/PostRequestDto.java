@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -17,10 +19,15 @@ public class PostRequestDto {
     private String ceo;
     private String contents;
     private List<MultipartFile> image = new ArrayList<>();
-    private String mapdata;
+    private String lat;
+    private String lng;
     private String address;
+    private String cost;
     private String telNum;
     private String startTime;
     private String endTime;
     private String closedDay;
+    private Boolean aboolean1;
+    private Boolean aboolean2;
+
 }
