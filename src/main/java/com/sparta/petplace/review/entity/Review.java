@@ -34,18 +34,18 @@ public class Review extends Timestamped {
     @JoinColumn(name = "MEMBER_ID", nullable = false)
     private Member member;
 
+    public void update(ReviewRequestDto requestDto, String image, Member member) {
+        this.star = requestDto.getStar();
+        this.review = requestDto.getReview();
+        this.image = image;
+        this.member = member;
+    }
+
     public Review(ReviewRequestDto reviewRequestDto, String image, Post post, Member member) {
         this.star = reviewRequestDto.getStar();
         this.review = reviewRequestDto.getReview();
         this.image = image;
         this.post = post;
-        this.member = member;
-    }
-
-    public void update(ReviewRequestDto requestDto, String image, Member member) {
-        this.star = requestDto.getStar();
-        this.review = requestDto.getReview();
-        this.image = image;
         this.member = member;
     }
 }
