@@ -17,7 +17,6 @@ public enum Error {
     WRONG_TOKEN("400", "토큰 오류"),
     WRONG_BUSINESS("400", "사업자 번호를 입력해주세요"),
     WRONG_PASSWORD_CHECK( "400", "비밀번호 형식이 아닙니다"),
-    DUPLICATED_BUSINESS("400","중복된 사업자 게시글 입니다."),
     VALIDATE_BUSINESS("400","사업자 번호가 일치하지 않습니다."),
     VALIDATE_EMAIL_ERROR( "400", "이메일 형식이 아닙니다."),
     VALIDATE_NICKNAME_ERROR( "400", "닉네임은 알파벳 대, 소문자, 숫자로 구성된 2-12자리여야 한다."),
@@ -26,7 +25,6 @@ public enum Error {
     NOT_EXIST_USER("400","사용자가 없습니다"),
     BAD_REQUEST("400", ""),
     MAX_INPUT_IMAGE("400","최대 저장가능한 이미지 개수를 초과 했습니다."),
-
     // S3
     FAIL_S3_SAVE("400", "S3파일 저장 중 예외 발생"),
     FAIL_S3_DELETE("400","S3파일 삭제 중 예외 발생"),
@@ -36,7 +34,8 @@ public enum Error {
 
     // 409 CONFLICT 중복된 리소스
     DUPLICATED_EMAIL("409", "이미 존재하는 이메일입니다."),
-    DUPLICATED_NICKNAME("409", "이미 존재하는 닉네임입니다.");
+    DUPLICATED_NICKNAME("409", "이미 존재하는 닉네임입니다."),
+    DUPLICATED_BUSINESS("409","중복된 사업자 입니다.");
 
     private final String status;
     private final String message;
