@@ -30,8 +30,9 @@ public class PostResponseDto {
     private String closedDay;
     private String reSizeImage;
     private Double distance;
-    private Boolean aboolean1;
-    private Boolean aboolean2;
+    private String feature1;
+    private String aboolean1;
+    private String aboolean2;
 
 
     private Integer star;
@@ -58,6 +59,7 @@ public class PostResponseDto {
         this.category = post.getCategory();
         this.contents = post.getContents();
         this.endTime = post.getEndTime();
+        this.feature1 = post.getFeature1();
         this.address = post.getAddress();
         this.telNum = post.getTelNum();
         this.email = post.getEmail();

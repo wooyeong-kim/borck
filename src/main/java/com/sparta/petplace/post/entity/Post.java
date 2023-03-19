@@ -56,10 +56,13 @@ public class Post extends Timestamped {
     private String cost;
     // 병원 : 야간진료, 미용 : 예약여부
     @Column
-    private Boolean aboolean1;
+    private String aboolean1;
     // 미용 : 주차여부, 카페 : 주차여부
     @Column
-    private Boolean aboolean2;
+    private String aboolean2;
+    // 부대시설 ,진료항목
+    @Column(length = 10000)
+    private String feature1;
     @Column
     private Integer star;
     @OneToMany(mappedBy = "post")
@@ -87,6 +90,7 @@ public class Post extends Timestamped {
         this.cost = requestDto.getCost();
         this.aboolean1 = requestDto.getAboolean1();
         this.aboolean2 = requestDto.getAboolean2();
+        this.feature1 = requestDto.getFeature1();
         this.resizeImage = resizeImage;
         this.star = star;
         this.member = member;
@@ -110,6 +114,7 @@ public class Post extends Timestamped {
         this.cost = requestDto.getCost();
         this.aboolean1 = requestDto.getAboolean1();
         this.aboolean2 = requestDto.getAboolean2();
+        this.feature1 = requestDto.getFeature1();
         this.image = image;
         this.star = star;
     }

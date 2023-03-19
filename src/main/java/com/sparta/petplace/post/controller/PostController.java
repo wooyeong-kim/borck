@@ -10,6 +10,7 @@ import com.sparta.petplace.post.entity.Sort;
 import com.sparta.petplace.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,11 +27,13 @@ public class PostController {
    // TODO: 2023/03/17 올리기전에 프론트에 키워드 -> 카테고리 로 바꾼거 말해주기 , sort 추가한거도 말해주기
    //게시글 전체 조회
    @GetMapping("/category")
-   public List<PostResponseDto> getPosts(@RequestParam(value = "category") String category,
+   public Page<PostResponseDto> getPosts(@RequestParam(value = "category") String category,
                                          @RequestParam(value = "sort") Sort sort,
                                          @RequestParam(value = "lat") String lat,
-                                         @RequestParam(value = "lng") String lng){
-      return postService.getPosts(category, sort, lat, lng);
+                                         @RequestParam(value = "lng") String lng,
+                                         @RequestParam(value = "page") int page,
+                                         @RequestParam(value = "size") int size){
+      return postService.getPosts(category, sort, lat, lng, page ,size);
    }
 
 
@@ -38,6 +41,13 @@ public class PostController {
    @GetMapping("/{post_id}")
    private PostResponseDto getPostId(@PathVariable Long post_id ,@AuthenticationPrincipal UserDetailsImpl userDetails){
       return postService.getPostId(post_id,userDetails.getMember());
+   }
+
+   @GetMapping("/topPosts")
+   public List<PostResponseDto> getMains(@RequestParam(value = "category") String category,
+                                         @RequestParam(value = "lat") String lat,
+                                         @RequestParam(value = "lng") String lng){
+      return postService.getMain(category, lat, lng);
    }
 
 
