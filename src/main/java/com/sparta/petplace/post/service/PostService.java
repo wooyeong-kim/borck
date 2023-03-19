@@ -28,6 +28,10 @@ import com.sparta.petplace.review.repository.ReviewRepository;
 import com.sparta.petplace.review.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,38 +63,18 @@ public class PostService {
     private final ReviewRepository reviewRepository;
     private final S3Uploader s3Uploader;
 
+
     //게시글 전체 조회
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPosts(String category, Sort sort, String lat, String lng) {
+    public Page<PostResponseDto> getPosts(String category, Sort sort, String lat, String lng, int page, int size) {
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
-        List<Post> posts = postRepository.findByCategory(category);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Post> posts = postRepository.findByCategory(category, pageable);
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
 
-        for (Post p : posts) {
-            Double postLat = Double.parseDouble(p.getLat());
-            Double postLng = Double.parseDouble(p.getLng());
-            double distance = distance(usrtLat, usrtLng, postLat, postLng);
-            p.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
-            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-            Integer reviewStar = 0;
-            int count = 0;
-            for (Review r : p.getReviews()) {
-                reviewResponseDtos.add(ReviewResponseDto.from(r));
-                reviewStar += r.getStar();
-                count += 1;
-            }
-            Integer starAvr = null;
-            if (count != 0) {
-                starAvr = Math.round(reviewStar / count);
-            }
-            postResponseDtos.add(PostResponseDto.builder()
-                    .post(p)
-                    .star(starAvr)
-                    .distance(distance)
-                    .reviewCount(count)
-                    .build());
-        }
+        buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
+
         if (sort == Sort.DISTANCE) {
             Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
         } else if (sort == Sort.STAR) {
@@ -98,10 +82,33 @@ public class PostService {
         } else if (sort == Sort.REVIEW) {
             Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getReviewCount).reversed());
         }
-        return postResponseDtos;
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), postResponseDtos.size());
+        return new PageImpl<>(postResponseDtos.subList(start, end), pageable, postResponseDtos.size());
     }
 
-    //게시글 작성
+
+    //메인 페이지 조회
+    public List<PostResponseDto> getMain(String category, String lat, String lng) {
+        List<PostResponseDto> postResponseDtos = new ArrayList<>();
+        List<Post> posts = postRepository.findByCategory(category);
+        Double usrtLat = Double.parseDouble(lat);
+        Double usrtLng = Double.parseDouble(lng);
+
+        buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
+
+        Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
+        List<PostResponseDto> mainResponseDto = new ArrayList<>();
+        int i = 0;
+        while (i < postResponseDtos.size() && i < 3) {
+            mainResponseDto.add(postResponseDtos.get(i));
+            i++;
+        }
+        return mainResponseDto;
+    }
+
+
+    // 게시글 작성
     @Transactional
     public ApiResponseDto<PostResponseDto> createPost(PostRequestDto requestDto, Member member) {
         Optional<Member> member1 = memberRepository.findByEmail(member.getEmail());
@@ -223,6 +230,7 @@ public class PostService {
         }
     }
 
+
     //게시글 삭제
     @Transactional
     public ApiResponseDto<SuccessResponse> deletePost(Long post_id, Member member) {
@@ -234,7 +242,6 @@ public class PostService {
         if (!post.getMember().getEmail().equals(member.getEmail())) {
             throw new CustomException(Error.NO_AUTHORITY);
         }
-        //기존 S3에 저장된 파일을 제거후 다시 저장
         for (PostImage postImage : post.getImage()) {
             s3Service.deleteFile(postImage.getImage());
             postImageRepository.delete(postImage);
@@ -270,7 +277,21 @@ public class PostService {
 //    }
 
 
-    // multipart로 받은 이미지 파일 리사이징 해서 파일 만들기
+// ==================================== Method Extract ====================================
+    //거리구하기
+    public static double distance(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371; // 지구 반지름
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c;
+        return distance;
+    }
+
+
     public File resizeImage(MultipartFile file) throws IOException {
         log.info(file.getContentType());
 
@@ -311,17 +332,31 @@ public class PostService {
 
     }
 
-    //거리구하기
-    public static double distance(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371; // 지구 반지름
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c;
-        return distance;
-    }
 
+    public static void buildPostDtos(List<PostResponseDto> postResponseDtos, List<Post> posts, Double usrtLat, Double usrtLng) {
+        for (Post p : posts) {
+            Double postLat = Double.parseDouble(p.getLat());
+            Double postLng = Double.parseDouble(p.getLng());
+            double distance = distance(usrtLat, usrtLng, postLat, postLng);
+            p.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
+            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+            Integer reviewStar = 0;
+            int count = 0;
+            for (Review r : p.getReviews()) {
+                reviewResponseDtos.add(ReviewResponseDto.from(r));
+                reviewStar += r.getStar();
+                count += 1;
+            }
+            Integer starAvr = null;
+            if (count != 0) {
+                starAvr = Math.round(reviewStar / count);
+            }
+            postResponseDtos.add(PostResponseDto.builder()
+                    .post(p)
+                    .star(starAvr)
+                    .distance(distance)
+                    .reviewCount(count)
+                    .build());
+        }
+    }
 }

@@ -27,7 +27,8 @@ public class PostRequestDto {
     private String startTime;
     private String endTime;
     private String closedDay;
-    private Boolean aboolean1;
-    private Boolean aboolean2;
+    private String feature1;
+    private String aboolean1;
+    private String aboolean2;
 
 }
