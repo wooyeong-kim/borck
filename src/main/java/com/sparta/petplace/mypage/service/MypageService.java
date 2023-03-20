@@ -101,15 +101,24 @@ public class MypageService {
 
 
     //사용자 정보
-    public List<ReviewResponseDto> getReview(Member member) {
-        Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
-        if (review.isEmpty()) {
+    public List<ReviewResponseDto> getReview(Member member, String cases) {
+        List<Review> review = reviewRepository.findAllByMemberIdOrderByCreatedAtDesc(member.getId());
+        List<ReviewResponseDto> responseDtoList = new ArrayList<>();
+        boolean filter = Boolean.parseBoolean(cases);
+        if (review == null) {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
-        List<ReviewResponseDto> responseDtoList = new ArrayList<>();
-        for (Review r : review.get()) {
-            responseDtoList.add(ReviewResponseDto.from(r));
+            for (Review r : review) {
+                if(filter && r.getReview() != null){
+                    ReviewResponseDto responseDto = new ReviewResponseDto(r);
+                    responseDtoList.add(responseDto);
+                }else if(!filter && r.getReview() == null){
+                    ReviewResponseDto responseDto = new ReviewResponseDto(r);
+                    responseDtoList.add(responseDto);
+                }
         }
         return responseDtoList;
     }
+
+
 }
