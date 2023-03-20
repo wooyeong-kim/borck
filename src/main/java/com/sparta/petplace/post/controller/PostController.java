@@ -79,4 +79,13 @@ public class PostController {
       return postService.deletePost(post_id, userDetails.getMember());
    }
 
+   @GetMapping("/category/keyword")
+   public ApiResponseDto<List<PostResponseDto>> searchPost(@RequestParam(value = "category") String category,
+                                                           @RequestParam(value = "keyword") String keyword,
+                                                           @RequestParam(value = "sort") Sort sort,
+                                                           @RequestParam(value = "lat") String lat,
+                                                           @RequestParam(value = "lng") String lng){
+      return postService.searchPost(category,keyword, sort, lat, lng);
+   }
+
 }
