@@ -47,8 +47,15 @@ public class MypageController {
 
     //사용자 보여주기
     @GetMapping("/review")
-    public List<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return mypageService.getReview(userDetails.getMember());
+    public List<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam(value = "cases") String cases){
+        return mypageService.getReview(userDetails.getMember(),cases);
     }
 
+
 }
+
+/*
+*           정의를 하면
+*           이미지 정렬
+*           이미지가 review 정렬
+* */
