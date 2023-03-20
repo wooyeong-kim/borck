@@ -1,10 +1,6 @@
 package com.sparta.petplace.post.service;
 
 
-import com.sparta.petplace.post.entity.Sort;
-import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
-import com.sparta.petplace.mypage.repository.MypageRepository;
-import com.sparta.petplace.member.repository.MemberRepository;
 import com.sparta.petplace.S3Service;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.ErrorResponse;
@@ -16,10 +12,13 @@ import com.sparta.petplace.like.entity.Likes;
 import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
+import com.sparta.petplace.member.repository.MemberRepository;
+import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.entity.PostImage;
+import com.sparta.petplace.post.entity.Sort;
 import com.sparta.petplace.post.repository.PostImageRepository;
 import com.sparta.petplace.post.repository.PostRepository;
 import com.sparta.petplace.review.dto.ReviewResponseDto;
@@ -28,6 +27,7 @@ import com.sparta.petplace.review.repository.ReviewRepository;
 import com.sparta.petplace.review.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -37,17 +37,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.StandardCopyOption;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import javax.imageio.ImageIO;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.io.File;
 import java.util.*;
-import java.awt.*;
 
 @Service
 @Slf4j
@@ -75,13 +75,7 @@ public class PostService {
 
         buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
 
-        if (sort == Sort.DISTANCE) {
-            Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
-        } else if (sort == Sort.STAR) {
-            Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getStar).reversed());
-        } else if (sort == Sort.REVIEW) {
-            Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getReviewCount).reversed());
-        }
+        sort(sort, postResponseDtos);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), postResponseDtos.size());
         return new PageImpl<>(postResponseDtos.subList(start, end), pageable, postResponseDtos.size());
@@ -98,6 +92,7 @@ public class PostService {
         buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
 
         Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
+
         List<PostResponseDto> mainResponseDto = new ArrayList<>();
         int i = 0;
         while (i < postResponseDtos.size() && i < 3) {
@@ -254,27 +249,28 @@ public class PostService {
     }
 
 
-//    @Transactional(readOnly = true)
-//    public ApiResponseDto<List<PostResponseDto>> searchPost(String category, String keyword, Sort sort , Member member) {
-//        List<Post> postList;
-//        if (sort == Sort.STAR) {
-//            postList = postRepository.findByCategoryAndKeywordContainingOrderByStarDesc(category, keyword);
-//        }else if (sort == Sort.DISTANCE) {
-//            postList = postRepository.findByCategoryAndKeywordContainingOrderByDistanceDesc(category, keyword);
-//        } else if (sort == Sort.REVIEW) {
-//            postList = postRepository.findByCategoryAndKeywordContainingOrderByReviewDesc(category, keyword);
-//        } else {
-//            postList = postRepository.findByCategoryAndKeywordContaining(category, keyword);
-//        }
-//        List<PostResponseDto> responseDtoList = new ArrayList<>();
-//
-//        for (Post post : postList) {
-//            responseDtoList.add(PostResponseDto.of(post));
-//        }
-//
-//        return ResponseUtils.ok(responseDtoList);
-//
-//    }
+    @Transactional(readOnly = true)
+    public ApiResponseDto<List<PostResponseDto>> searchPost(String category, String keyword, Sort sort , String lat, String lng) {
+        log.info(category);
+        List<PostResponseDto> postResponseDtos = new ArrayList<>();
+        List<Post> posts = postRepository.search(category, keyword);
+        Double usrtLat = Double.parseDouble(lat);
+        Double usrtLng = Double.parseDouble(lng);
+
+        if (posts.isEmpty()){
+            throw new CustomException(Error.NOT_FOUND_POST);
+        }
+
+        buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
+
+        log.info(postResponseDtos.get(0).getCategory());
+
+        sort(sort, postResponseDtos);
+
+        return ResponseUtils.ok(postResponseDtos);
+
+    }
+
 
 
 // ==================================== Method Extract ====================================
@@ -357,6 +353,18 @@ public class PostService {
                     .distance(distance)
                     .reviewCount(count)
                     .build());
+        }
+    }
+
+
+    private void sort(Sort sort, List<PostResponseDto> postResponseDtos) {
+        switch (sort){
+            case STAR:
+                postResponseDtos.sort(Comparator.comparing(PostResponseDto::getStar).reversed());
+            case REVIEW:
+                postResponseDtos.sort(Comparator.comparing(PostResponseDto::getReviewCount).reversed());
+            case DISTANCE:
+                postResponseDtos.sort(Comparator.comparing(PostResponseDto::getDistance));
         }
     }
 }
