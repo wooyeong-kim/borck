@@ -47,10 +47,9 @@ public class MypageController {
 
     //사용자 보여주기
     @GetMapping("/review")
-    public List<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam(value = "cases") String cases){
-        return mypageService.getReview(userDetails.getMember(),cases);
+    public List<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return mypageService.getReview(userDetails.getMember());
     }
-
 
 }
 

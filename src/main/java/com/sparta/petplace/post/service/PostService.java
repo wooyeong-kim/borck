@@ -66,14 +66,16 @@ public class PostService {
 
     //게시글 전체 조회
     @Transactional(readOnly = true)
-    public Page<PostResponseDto> getPosts(String category, Sort sort, String lat, String lng, int page, int size) {
+    public Page<PostResponseDto> getPosts(String category, Sort sort, String lat, String lng, int page, int size, Member member) {
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, size);
         List<Post> posts = postRepository.findByCategory(category, pageable);
+
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
 
-        buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
+
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng);
 
         sort(sort, postResponseDtos);
         int start = (int) pageable.getOffset();
@@ -83,14 +85,14 @@ public class PostService {
 
 
     //메인 페이지 조회
-    public List<PostResponseDto> getMain(String category, String lat, String lng) {
+    @Transactional(readOnly = true)
+    public List<PostResponseDto> getMain(String category, String lat, String lng, Member member) {
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
         List<Post> posts = postRepository.findByCategory(category);
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
 
-        buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
-
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng);
         Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
 
         List<PostResponseDto> mainResponseDto = new ArrayList<>();
@@ -104,6 +106,7 @@ public class PostService {
 
 
     // 게시글 작성
+
     @Transactional
     public ApiResponseDto<PostResponseDto> createPost(PostRequestDto requestDto, Member member) {
         Optional<Member> member1 = memberRepository.findByEmail(member.getEmail());
@@ -143,8 +146,8 @@ public class PostService {
         return ResponseUtils.ok(PostResponseDto.from(posts, imgList));
     }
 
-
     //게시글 이름 중복 확인
+
     @Transactional(readOnly = true)
     public ApiResponseDto<SuccessResponse> postCheck(String title) {
         Optional<Post> findPost = postRepository.findByTitle(title);
@@ -154,8 +157,8 @@ public class PostService {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "등록 가능한 사업자입니다."));
     }
 
-
     //게시글 상세 조회
+
     @Transactional
     public PostResponseDto getPostId(Long post_id, Member member) {
         Post posts = postRepository.findById(post_id).orElseThrow(
@@ -178,8 +181,7 @@ public class PostService {
         if (count != 0) {
             starAvr = Math.round(reviewStar / count);
         }
-
-        Likes likes = likesRepository.findByPostIdAndMember(post_id, member);
+        Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
         if (likes == null) {
             return PostResponseDto.of(posts, images, reviewResponseDtos, false, count, starAvr);
         } else {
@@ -187,8 +189,8 @@ public class PostService {
         }
     }
 
-
     //게시글 수정
+
     @Transactional
     public ApiResponseDto<?> updatePost(Long post_id, PostRequestDto requestDto, Member member) {
         Optional<Post> postOptional = postRepository.findById(post_id);
@@ -225,8 +227,8 @@ public class PostService {
         }
     }
 
-
     //게시글 삭제
+
     @Transactional
     public ApiResponseDto<SuccessResponse> deletePost(Long post_id, Member member) {
         Optional<Post> postOptional = postRepository.findById(post_id);
@@ -248,20 +250,19 @@ public class PostService {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, " 게시글 삭제 성공"));
     }
 
-
     @Transactional(readOnly = true)
-    public ApiResponseDto<List<PostResponseDto>> searchPost(String category, String keyword, Sort sort , String lat, String lng) {
+    public ApiResponseDto<List<PostResponseDto>> searchPost(String category, String keyword, Sort sort, String lat, String lng, Member member) {
         log.info(category);
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
         List<Post> posts = postRepository.search(category, keyword);
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
 
-        if (posts.isEmpty()){
+        if (posts.isEmpty()) {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
 
-        buildPostDtos(postResponseDtos, posts, usrtLat, usrtLng);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng);
 
         log.info(postResponseDtos.get(0).getCategory());
 
@@ -272,9 +273,9 @@ public class PostService {
     }
 
 
-
-// ==================================== Method Extract ====================================
+    // ==================================== Method Extract ====================================
     //거리구하기
+
     public static double distance(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371; // 지구 반지름
         double dLat = Math.toRadians(lat2 - lat1);
@@ -284,7 +285,42 @@ public class PostService {
                         Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double distance = R * c;
-        return distance;
+        return distance * 1000.0;
+    }
+    private void buildResponseDtos(Member member, List<PostResponseDto> postResponseDtos, List<Post> posts, Double usrtLat, Double usrtLng) {
+        for (Post p : posts) {
+
+            Double postLat = Double.parseDouble(p.getLat());
+            Double postLng = Double.parseDouble(p.getLng());
+            double distance = distance(usrtLat, usrtLng, postLat, postLng);
+            p.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
+            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+            Integer reviewStar = 0;
+            int count = 0;
+            for (Review r : p.getReviews()) {
+                reviewResponseDtos.add(ReviewResponseDto.from(r));
+                reviewStar += r.getStar();
+                count += 1;
+            }
+            Integer starAvr = null;
+            if (count != 0) {
+                starAvr = Math.round(reviewStar / count);
+            }
+            boolean isLike = false;
+            Likes likes = likesRepository.findByPostIdAndMemberId(p.getId(), member.getId());
+            if (likes == null) {
+                isLike = false;
+            } else {
+                isLike = true;
+            }
+            postResponseDtos.add(PostResponseDto.builder()
+                    .post(p)
+                    .star(starAvr)
+                    .distance(distance)
+                    .reviewCount(count)
+                    .isLike(isLike)
+                    .build());
+        }
     }
 
 
@@ -329,36 +365,8 @@ public class PostService {
     }
 
 
-    public static void buildPostDtos(List<PostResponseDto> postResponseDtos, List<Post> posts, Double usrtLat, Double usrtLng) {
-        for (Post p : posts) {
-            Double postLat = Double.parseDouble(p.getLat());
-            Double postLng = Double.parseDouble(p.getLng());
-            double distance = distance(usrtLat, usrtLng, postLat, postLng);
-            p.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
-            List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-            Integer reviewStar = 0;
-            int count = 0;
-            for (Review r : p.getReviews()) {
-                reviewResponseDtos.add(ReviewResponseDto.from(r));
-                reviewStar += r.getStar();
-                count += 1;
-            }
-            Integer starAvr = null;
-            if (count != 0) {
-                starAvr = Math.round(reviewStar / count);
-            }
-            postResponseDtos.add(PostResponseDto.builder()
-                    .post(p)
-                    .star(starAvr)
-                    .distance(distance)
-                    .reviewCount(count)
-                    .build());
-        }
-    }
-
-
     private void sort(Sort sort, List<PostResponseDto> postResponseDtos) {
-        switch (sort){
+        switch (sort) {
             case STAR:
                 postResponseDtos.sort(Comparator.comparing(PostResponseDto::getStar).reversed());
             case REVIEW:

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -44,10 +43,10 @@ public class PostResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    private boolean isSave;
+    private boolean isLike;
 
     @Builder
-    public PostResponseDto(Post post, List<String> image, boolean isSave, List<ReviewResponseDto> review, int reviewCount , Integer star , Double distance){
+    public PostResponseDto(Post post, List<String> image, boolean isLike, List<ReviewResponseDto> review, int reviewCount , Integer star , Double distance){
         this.id = post.getId();
         this.reSizeImage = post.getResizeImage();
         this.modifiedAt = post.getModifiedAt();
@@ -69,9 +68,9 @@ public class PostResponseDto {
         this.lat = post.getLat();
         this.lng = post.getLng();
         this.reviewCount = reviewCount;
-        this.review = review;
         this.distance= distance;
-        this.isSave = isSave;
+        this.review = review;
+        this.isLike = isLike;
         this.image = image;
         this.star = star;
     }
@@ -87,14 +86,14 @@ public class PostResponseDto {
                 .image(image)
                 .build();
     }
-    public static PostResponseDto of(Post post, List<String> image,List<ReviewResponseDto> responseDtoList,boolean isSave , int reviewCount, Integer star){
+    public static PostResponseDto of(Post post, List<String> image,List<ReviewResponseDto> responseDtoList,boolean isLike , int reviewCount, Integer star){
         return PostResponseDto.builder()
                 .post(post)
                 .image(image)
                 .review(responseDtoList)
                 .reviewCount(reviewCount)
                 .star(star)
-                .isSave(isSave)
+                .isLike(isLike)
                 .build();
     }
 }

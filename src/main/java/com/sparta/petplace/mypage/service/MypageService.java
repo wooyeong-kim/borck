@@ -6,11 +6,12 @@ import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
+import com.sparta.petplace.like.entity.Likes;
+import com.sparta.petplace.like.repository.LikesRepository;
 import com.sparta.petplace.member.dto.MemberResponseDto;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
 import com.sparta.petplace.mypage.dto.MypageModifyRequestDto;
-import com.sparta.petplace.mypage.entity.Mypage;
 import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
@@ -34,6 +35,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class MypageService {
+    private final LikesRepository likesRepository;
     private final MypageRepository mypageRepository;
     private final PostRepository postRepository;
     private final S3Service s3Service;
@@ -50,7 +52,20 @@ public class MypageService {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
         List<PostResponseDto> responseDtos = new ArrayList<>();
-        for (Post post : found.get()) responseDtos.add(PostResponseDto.of(post));
+
+        for (Post post : found.get()) {
+            boolean isLike = false;
+            Likes likes = likesRepository.findByPostIdAndMemberId(post.getId(), member.getId());
+            if (likes == null) {
+                isLike = false;
+            } else {
+                isLike = true;
+            }
+            responseDtos.add(PostResponseDto.builder()
+                    .post(post)
+                    .isLike(isLike)
+                    .build());
+        }
         return responseDtos;
     }
 
@@ -58,9 +73,9 @@ public class MypageService {
     //찜한거 보여주기
     @Transactional(readOnly = true)
     public List<PostResponseDto> getSave(Member member) {
-        List<Mypage> mypageList = mypageRepository.findByMemberId(member.getId());
+        List<Likes> mypageList = likesRepository.findByMemberId(member.getId());
         List<PostResponseDto> responseDtoList = new ArrayList<>();
-        for (Mypage mypage : mypageList)
+        for (Likes mypage : mypageList)
             responseDtoList.add(PostResponseDto.of(mypage.getPost()));
         return responseDtoList;
     }
@@ -101,24 +116,16 @@ public class MypageService {
 
 
     //사용자 정보
-    public List<ReviewResponseDto> getReview(Member member, String cases) {
-        List<Review> review = reviewRepository.findAllByMemberIdOrderByCreatedAtDesc(member.getId());
+    public List<ReviewResponseDto> getReview(Member member) {
+        Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
         List<ReviewResponseDto> responseDtoList = new ArrayList<>();
-        boolean filter = Boolean.parseBoolean(cases);
-        if (review == null) {
+
+        if (review.isEmpty()) {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
-            for (Review r : review) {
-                if(filter && r.getReview() != null){
-                    ReviewResponseDto responseDto = new ReviewResponseDto(r);
-                    responseDtoList.add(responseDto);
-                }else if(!filter && r.getReview() == null){
-                    ReviewResponseDto responseDto = new ReviewResponseDto(r);
-                    responseDtoList.add(responseDto);
-                }
-        }
+            for (Review r : review.get()) {
+                responseDtoList.add(ReviewResponseDto.from(r));
+            }
         return responseDtoList;
     }
-
-
 }

@@ -40,7 +40,7 @@ public class LikesService {
         if(!likes.isEmpty()){
             likesRepository.delete(likes.get());
         }
-        return ResponseUtils.ok(LikesResponseDto.of(true, "취소", 200));
+        return ResponseUtils.ok(LikesResponseDto.of(false, "취소", 200));
     }
 
     // ======== 메서드 ========

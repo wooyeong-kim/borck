@@ -45,12 +45,12 @@ public class MemberService {
     @Transactional
     public ApiResponseDto<SuccessResponse> signup(SignupRequestDto signupRequestDto) {
         memberCheck(signupRequestDto.getEmail());
-        String basicImg = "https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/defaultImage.webp";
+//        String basicImg = "https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/defaultImage.webp";
         memberRepository.save(Member.builder()
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                 .nickname(signupRequestDto.getNickname())
                 .email(signupRequestDto.getEmail())
-                .image(basicImg)
+//                .image(basicImg)
                 .loginType(LoginType.USER)
                 .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
@@ -60,13 +60,13 @@ public class MemberService {
     //사업자 회원가입 기능
     public ApiResponseDto<SuccessResponse> businessSignup(BusinessSignupRequestDto signupRequestDto) {
         memberCheck(signupRequestDto.getEmail());
-        String basicImg = "https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/defaultImage.webp";
+//        String basicImg = "https://kunon-clean-project.s3.ap-northeast-2.amazonaws.com/defaultImage.webp";
         memberRepository.save(Member.builder()
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                 .nickname(signupRequestDto.getNickname())
                 .email(signupRequestDto.getEmail())
                 .business(signupRequestDto.getBusiness())
-                .image(basicImg)
+//                .image(basicImg)
                 .loginType(LoginType.BUSINESS)
                 .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));

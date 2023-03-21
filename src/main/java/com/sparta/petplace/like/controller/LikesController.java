@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("{post_id}")
 public class LikesController {
-    private LikesService likesService;
+    private final LikesService likesService;
 
     //게시글 찜하기
     @PostMapping("/like")

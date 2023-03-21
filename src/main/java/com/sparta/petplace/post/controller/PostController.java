@@ -8,6 +8,7 @@ import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Sort;
 import com.sparta.petplace.post.service.PostService;
+import com.sparta.petplace.review.dto.ReviewResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Queue;
 
 
 @RestController
@@ -32,8 +34,9 @@ public class PostController {
                                          @RequestParam(value = "lat") String lat,
                                          @RequestParam(value = "lng") String lng,
                                          @RequestParam(value = "page") int page,
-                                         @RequestParam(value = "size") int size){
-      return postService.getPosts(category, sort, lat, lng, page ,size);
+                                         @RequestParam(value = "size") int size,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
+      return postService.getPosts(category, sort, lat, lng, page ,size , userDetails.getMember() );
    }
 
 
@@ -46,8 +49,9 @@ public class PostController {
    @GetMapping("/topPosts")
    public List<PostResponseDto> getMains(@RequestParam(value = "category") String category,
                                          @RequestParam(value = "lat") String lat,
-                                         @RequestParam(value = "lng") String lng){
-      return postService.getMain(category, lat, lng);
+                                         @RequestParam(value = "lng") String lng,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
+      return postService.getMain(category, lat, lng, userDetails.getMember());
    }
 
 
@@ -79,13 +83,16 @@ public class PostController {
       return postService.deletePost(post_id, userDetails.getMember());
    }
 
-   @GetMapping("/category/keyword")
+   //게시글 검색
+   @GetMapping("/category/search")
    public ApiResponseDto<List<PostResponseDto>> searchPost(@RequestParam(value = "category") String category,
                                                            @RequestParam(value = "keyword") String keyword,
                                                            @RequestParam(value = "sort") Sort sort,
                                                            @RequestParam(value = "lat") String lat,
-                                                           @RequestParam(value = "lng") String lng){
-      return postService.searchPost(category,keyword, sort, lat, lng);
+                                                           @RequestParam(value = "lng") String lng,
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails){
+      return postService.searchPost(category,keyword, sort, lat, lng,userDetails.getMember());
    }
 
+   //내가본 게시글 리스트
 }

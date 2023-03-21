@@ -11,10 +11,10 @@ import java.util.Optional;
 public interface LikesRepository extends JpaRepository<Likes, Long> {
     Optional<Likes> findByPostAndMember(Post post, Member member);
 
-    Likes findByPostIdAndMember(Long post_id , Member member);
+    Likes findByPostIdAndMemberId(Long post_id , Long id);
 
     void deleteByPostId(Long postId);
 
-    List<Likes> findAllByMemberId(Long id);
+    List<Likes> findByMemberId(Long id);
 }
 
