@@ -22,6 +22,10 @@ import com.sparta.petplace.review.repository.ReviewRepository;
 import com.sparta.petplace.review.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,38 +50,42 @@ public class MypageService {
 
     //사업자 마이페이지 조회
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getView(Member member) {
-        Optional<List<Post>> found = postRepository.findAllByEmail(member.getEmail());
+    public Page<PostResponseDto> getView(Member member, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Post> found = postRepository.findAllByEmail(member.getEmail());
         if (found.isEmpty()) {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
         List<PostResponseDto> responseDtos = new ArrayList<>();
 
-        for (Post post : found.get()) {
-            boolean isLike = false;
+        for (Post post : found) {
+
             Likes likes = likesRepository.findByPostIdAndMemberId(post.getId(), member.getId());
-            if (likes == null) {
-                isLike = false;
-            } else {
-                isLike = true;
-            }
+            boolean isLike = likes != null;
             responseDtos.add(PostResponseDto.builder()
                     .post(post)
                     .isLike(isLike)
                     .build());
         }
-        return responseDtos;
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), responseDtos.size());
+        return new PageImpl<>(responseDtos.subList(start, end), pageable, responseDtos.size());
     }
 
 
     //찜한거 보여주기
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getSave(Member member) {
+    public Page<PostResponseDto> getSave(Member member, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
         List<Likes> mypageList = likesRepository.findByMemberId(member.getId());
         List<PostResponseDto> responseDtoList = new ArrayList<>();
         for (Likes mypage : mypageList)
             responseDtoList.add(PostResponseDto.of(mypage.getPost()));
-        return responseDtoList;
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), responseDtoList.size());
+        return new PageImpl<>(responseDtoList.subList(start, end), pageable, responseDtoList.size());
     }
 
 
@@ -116,16 +124,21 @@ public class MypageService {
 
 
     //사용자 정보
-    public List<ReviewResponseDto> getReview(Member member) {
-        Optional<List<Review>> review = reviewRepository.findAllByMemberId(member.getId());
-        List<ReviewResponseDto> responseDtoList = new ArrayList<>();
+    public Page<ReviewResponseDto> getReview(Member member, int page, int size) {
 
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Review> review = reviewRepository.findAllByMemberId(member.getId());
+
+        List<ReviewResponseDto> responseDtoList = new ArrayList<>();
         if (review.isEmpty()) {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
-            for (Review r : review.get()) {
+            for (Review r : review) {
                 responseDtoList.add(ReviewResponseDto.from(r));
             }
-        return responseDtoList;
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), responseDtoList.size());
+        return new PageImpl<>(responseDtoList.subList(start, end), pageable, responseDtoList.size());
     }
 }

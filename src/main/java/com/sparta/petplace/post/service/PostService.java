@@ -69,7 +69,7 @@ public class PostService {
     public Page<PostResponseDto> getPosts(String category, Sort sort, String lat, String lng, int page, int size, Member member) {
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, size);
-        List<Post> posts = postRepository.findByCategory(category, pageable);
+        List<Post> posts = postRepository.findByCategory(category);
 
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
@@ -306,13 +306,9 @@ public class PostService {
             if (count != 0) {
                 starAvr = Math.round(reviewStar / count);
             }
-            boolean isLike = false;
+
             Likes likes = likesRepository.findByPostIdAndMemberId(p.getId(), member.getId());
-            if (likes == null) {
-                isLike = false;
-            } else {
-                isLike = true;
-            }
+            boolean isLike = likes != null;
             postResponseDtos.add(PostResponseDto.builder()
                     .post(p)
                     .star(starAvr)
