@@ -12,7 +12,7 @@ import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
 import com.sparta.petplace.member.service.KakaoService;
 import com.sparta.petplace.member.service.MemberService;
-import com.sparta.petplace.post.ResponseDto.PostResponseDto;
+import com.sparta.petplace.post.ResponseDto.HistoryPostResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -83,9 +83,9 @@ public class MemberController {
      * 회원명 중복 체크
      */
 
-    @GetMapping("/signup")
-    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam("email") String email) {
-        return   memberService.memberCheck(email);
+    @GetMapping("/signup/usercheck")
+    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam String email) {
+        return memberService.memberCheck(email);
     }
 
 
@@ -93,8 +93,8 @@ public class MemberController {
      * 사업자명 중복체크
      */
     @GetMapping("/signup/businesscheck")
-    public ApiResponseDto<SuccessResponse> businessMemberCheck( @RequestParam("email") String email) {
-        return  memberService.businessMemberCheck(email);
+    public ApiResponseDto<SuccessResponse> businessMemberCheck( @RequestParam("business") String business) {
+        return  memberService.businessMemberCheck(business);
     }
 
 
@@ -114,7 +114,7 @@ public class MemberController {
     }
 
     @GetMapping("/posts/history")
-    public List<PostResponseDto> getMemberHistory(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public List<HistoryPostResponseDto> getMemberHistory(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return memberService.getMemberHistory(userDetails.getMember());
     }
 
