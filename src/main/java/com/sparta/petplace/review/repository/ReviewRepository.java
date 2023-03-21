@@ -1,6 +1,7 @@
 package com.sparta.petplace.review.repository;
 
 import com.sparta.petplace.member.entity.Member;
+import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.review.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,10 +17,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long>{
     Optional<Review> findByIdAndMember(Long id, Member member);
 
 
-    List<Review> findAllByMemberIdOrderByCreatedAtDesc(Long id);
 
     List<Review> findAllByMemberId(Long id);
 
+    Review findTopByMemberAndPostOrderByCreatedAtDesc(Member member, Post post);
 
 //    @Modifying
 //    @Query(value = "select  from Review order by image desc",nativeQuery = true)
