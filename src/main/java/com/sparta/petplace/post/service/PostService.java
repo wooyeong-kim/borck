@@ -15,7 +15,6 @@ import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.entity.MemberHistory;
 import com.sparta.petplace.member.repository.MemberHistoryRepository;
 import com.sparta.petplace.member.repository.MemberRepository;
-import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.HistoryPostResponseDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
@@ -61,11 +60,9 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
-    private final MypageRepository mypageRepository;
     private final LikesRepository likesRepository;
     private final ReviewRepository reviewRepository;
     private final S3Uploader s3Uploader;
-
 
 
     //게시글 전체 조회
@@ -79,7 +76,7 @@ public class PostService {
         Double usrtLng = Double.parseDouble(lng);
 
 
-        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng ,sort);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng, sort);
 
         sort(sort, postResponseDtos);
         int start = (int) pageable.getOffset();
@@ -96,7 +93,7 @@ public class PostService {
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
 
-        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng,Sort.DISTANCE);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng, Sort.DISTANCE);
 //        Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
 
         List<PostResponseDto> mainResponseDto = new ArrayList<>();
@@ -193,43 +190,18 @@ public class PostService {
         }
 
         Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
-        return  postResponseDto;
+        return postResponseDto;
 
     }
 
 
     // 히스토리 게시글 불러오기
-    public HistoryPostResponseDto getPostIfoNoHistory(Long post_id, Member member) {
+    public HistoryPostResponseDto getPostIfoNoHistory(Long post_id) {
         Post posts = postRepository.findById(post_id).orElseThrow(
                 () -> new CustomException(Error.NOT_FOUND_POST)
         );
-        List<String> images = new ArrayList<>();
-        for (PostImage postImage : posts.getImage()) {
-            images.add(postImage.getImage());
-        }
-        posts.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
-        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-        Integer reviewStar = 0;
-        int count = 0;
-        for (Review r : posts.getReviews()) {
-            reviewResponseDtos.add(ReviewResponseDto.from(r));
-            reviewStar += r.getStar();
-            count += 1;
-        }
-        int starAvr = 0;
-        if (count != 0) {
-            starAvr = Math.round(reviewStar / count);
-        }
-        Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
-        if (likes == null) {
-            return HistoryPostResponseDto.of(posts, images, reviewResponseDtos, false, count, starAvr);
-        } else {
-            return HistoryPostResponseDto.of(posts, images, reviewResponseDtos, true, count, starAvr);
-        }
-
+        return HistoryPostResponseDto.of(posts);
     }
-
-
 
 
     //게시글 수정
@@ -287,7 +259,6 @@ public class PostService {
         }
         reviewRepository.deleteByPostId(post_id);
         likesRepository.deleteByPostId(post_id);
-        mypageRepository.deleteByPostId(post_id);
         postRepository.deleteById(post_id);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, " 게시글 삭제 성공"));
     }
@@ -304,7 +275,7 @@ public class PostService {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
 
-        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng,sort);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng, sort);
 
         log.info(postResponseDtos.get(0).getCategory());
 
@@ -313,9 +284,6 @@ public class PostService {
         return ResponseUtils.ok(postResponseDtos);
 
     }
-
-
-
 
 
     // ==================================== Method Extract ====================================
@@ -401,7 +369,7 @@ public class PostService {
                     .isLike(isLike)
                     .build());
         }
-        sort(sort , postResponseDtos);
+        sort(sort, postResponseDtos);
 
     }
 

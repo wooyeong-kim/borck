@@ -12,7 +12,6 @@ import com.sparta.petplace.member.dto.MemberResponseDto;
 import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.repository.MemberRepository;
 import com.sparta.petplace.mypage.dto.MypageModifyRequestDto;
-import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.repository.PostRepository;
@@ -40,7 +39,6 @@ import java.util.Optional;
 @Slf4j
 public class MypageService {
     private final LikesRepository likesRepository;
-    private final MypageRepository mypageRepository;
     private final PostRepository postRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;

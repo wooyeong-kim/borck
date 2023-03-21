@@ -159,16 +159,15 @@ public class MemberService {
     //내가 본 게시물 조회하기 (3개)
     @Transactional
     public List<HistoryPostResponseDto> getMemberHistory(Member member) {
-        List<MemberHistory> userHistories = memberHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
-        List<HistoryPostResponseDto> postResponseDtos = new ArrayList<>();
+        List<MemberHistory> memberHistories = memberHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
+        List<HistoryPostResponseDto> historyPostResponseDtoList = new ArrayList<>();
 
-        for (MemberHistory history : userHistories) {
+        for (MemberHistory history : memberHistories) {
             Post post = history.getPost();
-            HistoryPostResponseDto postResponseDto = postService.getPostIfoNoHistory(post.getId(), member);
-            postResponseDtos.add(postResponseDto);
+            HistoryPostResponseDto historyPostResponseDto = postService.getPostIfoNoHistory(post.getId());
+            historyPostResponseDtoList.add(historyPostResponseDto);
         }
-
-        return postResponseDtos;
+        return historyPostResponseDtoList;
     }
 
 
