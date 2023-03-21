@@ -11,17 +11,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReviewResponseDto {
     private Long id;
+    private String title;
+    private String category;
     private String email;
     private Integer star;
     private String review;
     private String image;
     private String nickname;
+    private Long postId;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
     @Builder
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
+        this.title =  review.getPost().getTitle();
+        this.category = review.getPost().getCategory();
         this.email = review.getMember().getEmail();
         this.star = review.getStar();
         this.review = review.getReview();
@@ -29,6 +34,7 @@ public class ReviewResponseDto {
         this.nickname = review.getMember().getNickname();
         this.createdAt = review.getCreatedAt();
         this.modifiedAt = review.getModifiedAt();
+        this.postId = review.getPost().getId();
     }
 
     public static ReviewResponseDto from(Review review) {
@@ -36,4 +42,6 @@ public class ReviewResponseDto {
                 .review(review)
                 .build();
     }
+
+
 }

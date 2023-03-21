@@ -1,6 +1,7 @@
 package com.sparta.petplace.member.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sparta.petplace.auth.security.UserDetailsImpl;
 import com.sparta.petplace.common.ApiResponseDto;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
@@ -11,14 +12,17 @@ import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
 import com.sparta.petplace.member.service.KakaoService;
 import com.sparta.petplace.member.service.MemberService;
+import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -107,6 +111,11 @@ public class MemberController {
     @GetMapping("/kakao/callback")
     public ApiResponseDto<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response)throws JsonProcessingException {
         return kakaoService.kakaoLogin(code, response);
+    }
+
+    @GetMapping("/posts/history")
+    public List<PostResponseDto> getMemberHistory(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return memberService.getMemberHistory(userDetails.getMember());
     }
 
 }

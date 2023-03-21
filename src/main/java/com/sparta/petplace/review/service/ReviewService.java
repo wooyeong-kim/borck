@@ -6,7 +6,9 @@ import com.sparta.petplace.common.ResponseUtils;
 import com.sparta.petplace.common.SuccessResponse;
 import com.sparta.petplace.exception.CustomException;
 import com.sparta.petplace.exception.enumclass.Error;
+import com.sparta.petplace.like.entity.Likes;
 import com.sparta.petplace.member.entity.Member;
+import com.sparta.petplace.member.entity.QMember;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.repository.PostRepository;
 import com.sparta.petplace.review.dto.ReviewRequestDto;
@@ -18,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -83,4 +87,7 @@ public class ReviewService {
         reviewRepository.deleteById(review_id);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "후기 삭제 완료"));
     }
+
+
+
 }

@@ -15,7 +15,12 @@ import com.sparta.petplace.member.dto.LoginResponseDto;
 import com.sparta.petplace.member.dto.SignupRequestDto;
 import com.sparta.petplace.member.entity.LoginType;
 import com.sparta.petplace.member.entity.Member;
+import com.sparta.petplace.member.entity.MemberHistory;
+import com.sparta.petplace.member.repository.MemberHistoryRepository;
 import com.sparta.petplace.member.repository.MemberRepository;
+import com.sparta.petplace.post.ResponseDto.PostResponseDto;
+import com.sparta.petplace.post.entity.Post;
+import com.sparta.petplace.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.sparta.petplace.exception.enumclass.Error.NOT_EXIST_USER;
@@ -39,6 +46,8 @@ public class MemberService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final MemberHistoryRepository memberHistoryRepository;
+    private final PostService postService;
 
 
     // 회원가입기능
@@ -141,6 +150,21 @@ public class MemberService {
         }
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(jwtUtil.getUserId(refreshToken), "Access"));
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "토큰 갱신 성공."));
+    }
+
+    //내가 본 게시물 조회하기 (3개)
+    @Transactional
+    public List<PostResponseDto> getMemberHistory(Member member) {
+        List<MemberHistory> userHistories = memberHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
+        List<PostResponseDto> postResponseDtos = new ArrayList<>();
+
+        for (MemberHistory history : userHistories) {
+            Post post = history.getPost();
+            PostResponseDto postResponseDto = postService.getPostIfoNoHistory(post.getId(), member);
+            postResponseDtos.add(postResponseDto);
+        }
+
+        return postResponseDtos;
     }
 
 
