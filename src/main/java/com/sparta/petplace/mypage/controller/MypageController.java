@@ -9,10 +9,9 @@ import com.sparta.petplace.mypage.service.MypageService;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.review.dto.ReviewResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,20 +34,26 @@ public class MypageController {
 
     //사업자가 작성한 게시글 조회
     @GetMapping("/mypage/business")
-    public List<PostResponseDto> getView (@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return mypageService.getView(userDetails.getMember());
+    public Page<PostResponseDto> getView (@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                          @RequestParam(value = "page") int page,
+                                          @RequestParam(value = "size") int size){
+        return mypageService.getView(userDetails.getMember(), page, size);
     }
 
     //찜한 게시글 보여주기
     @GetMapping("/mypage/favorite")
-    public List<PostResponseDto> getSave(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return mypageService.getSave(userDetails.getMember());
+    public Page<PostResponseDto> getSave(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                         @RequestParam(value = "page") int  page,
+                                         @RequestParam(value = "size") int  size){
+        return mypageService.getSave(userDetails.getMember(), page, size);
     }
 
     //사용자 보여주기
     @GetMapping("/review")
-    public List<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return mypageService.getReview(userDetails.getMember());
+    public Page<ReviewResponseDto> getReview (@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                              @RequestParam(value = "page") int page,
+                                              @RequestParam(value = "size") int size){
+        return mypageService.getReview(userDetails.getMember(), page, size);
     }
 
 }
