@@ -8,7 +8,6 @@ import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Sort;
 import com.sparta.petplace.post.service.PostService;
-import com.sparta.petplace.review.dto.ReviewResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Queue;
 
 
 @RestController
@@ -35,15 +33,18 @@ public class PostController {
                                          @RequestParam(value = "lng") String lng,
                                          @RequestParam(value = "page") int page,
                                          @RequestParam(value = "size") int size,
-                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
-      return postService.getPosts(category, sort, lat, lng, page ,size , userDetails.getMember() );
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      return postService.getPosts(category, sort, lat, lng, page, size, userDetails.getMember());
    }
 
 
    //게시글 상세 조회
    @GetMapping("/{post_id}")
-   private PostResponseDto getPostId(@PathVariable Long post_id ,@AuthenticationPrincipal UserDetailsImpl userDetails){
-      return postService.getPostId(post_id,userDetails.getMember());
+   private PostResponseDto getPostId(@PathVariable Long post_id ,
+                                     @RequestParam(value = "page") int page,
+                                     @RequestParam(value = "size") int size,
+                                     @AuthenticationPrincipal UserDetailsImpl userDetails){
+      return postService.getPostId(post_id,userDetails.getMember(), page, size);
    }
 
    @GetMapping("/topPosts")

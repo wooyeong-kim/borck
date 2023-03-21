@@ -18,7 +18,7 @@ import com.sparta.petplace.member.entity.Member;
 import com.sparta.petplace.member.entity.MemberHistory;
 import com.sparta.petplace.member.repository.MemberHistoryRepository;
 import com.sparta.petplace.member.repository.MemberRepository;
-import com.sparta.petplace.post.ResponseDto.PostResponseDto;
+import com.sparta.petplace.post.ResponseDto.HistoryPostResponseDto;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -123,10 +123,14 @@ public class MemberService {
     //메일 중복 검사
     @Transactional
     public ApiResponseDto<SuccessResponse> memberCheck(String email) {
+        log.info(email);
         Optional<Member> findMember = memberRepository.findByEmail(email);
+
         if (findMember.isPresent()) {
+            log.info(findMember.get().getEmail());
             throw new CustomException(Error.DUPLICATED_EMAIL);
         }
+
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용 가능한 계정입니다."));
     }
 
@@ -154,13 +158,13 @@ public class MemberService {
 
     //내가 본 게시물 조회하기 (3개)
     @Transactional
-    public List<PostResponseDto> getMemberHistory(Member member) {
+    public List<HistoryPostResponseDto> getMemberHistory(Member member) {
         List<MemberHistory> userHistories = memberHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
-        List<PostResponseDto> postResponseDtos = new ArrayList<>();
+        List<HistoryPostResponseDto> postResponseDtos = new ArrayList<>();
 
         for (MemberHistory history : userHistories) {
             Post post = history.getPost();
-            PostResponseDto postResponseDto = postService.getPostIfoNoHistory(post.getId(), member);
+            HistoryPostResponseDto postResponseDto = postService.getPostIfoNoHistory(post.getId(), member);
             postResponseDtos.add(postResponseDto);
         }
 

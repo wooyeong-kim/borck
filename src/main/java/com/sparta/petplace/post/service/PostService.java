@@ -17,6 +17,7 @@ import com.sparta.petplace.member.repository.MemberHistoryRepository;
 import com.sparta.petplace.member.repository.MemberRepository;
 import com.sparta.petplace.mypage.repository.MypageRepository;
 import com.sparta.petplace.post.RequestDto.PostRequestDto;
+import com.sparta.petplace.post.ResponseDto.HistoryPostResponseDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Post;
 import com.sparta.petplace.post.entity.PostImage;
@@ -160,17 +161,18 @@ public class PostService {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "등록 가능한 사업자입니다."));
     }
 
-    //게시글 상세 조회
 
+    //게시글 상세 조회
     @Transactional
-    public PostResponseDto getPostId(Long post_id, Member member) {
+    public PostResponseDto getPostId(Long post_id, Member member, int page, int size) {
         Post posts = postRepository.findById(post_id).orElseThrow(
                 () -> new CustomException(Error.NOT_FOUND_POST)
         );
 
-        // findFirst(): filter를 통과한 첫 번째 요소를 찾음. findFirst는 Optional<MemberHistory> 타입을 반환하며, 조건에 맞는 요소가 없는 경우 Optional.empty()를 반환
-        PostResponseDto postResponseDto = getPostInfo(post_id,member);
+        // getPostInfo 메서드에서 review paging 처리
+        PostResponseDto postResponseDto = getPostInfo(post_id, member, page, size);
         List<MemberHistory> memberHistories = memberHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
+        // findFirst(): filter를 통과한 첫 번째 요소를 찾음. findFirst는 Optional<MemberHistory> 타입을 반환하며, 조건에 맞는 요소가 없는 경우 Optional.empty()를 반환
         Optional<MemberHistory> existingHistory = memberHistories.stream()
                 .filter(history -> history.getPost().getId().equals(post_id))
                 .findFirst();
@@ -195,8 +197,36 @@ public class PostService {
 
     }
 
-    public PostResponseDto getPostIfoNoHistory(Long post_id, Member member) {
-        return getPostInfo(post_id, member);
+
+    // 히스토리 게시글 불러오기
+    public HistoryPostResponseDto getPostIfoNoHistory(Long post_id, Member member) {
+        Post posts = postRepository.findById(post_id).orElseThrow(
+                () -> new CustomException(Error.NOT_FOUND_POST)
+        );
+        List<String> images = new ArrayList<>();
+        for (PostImage postImage : posts.getImage()) {
+            images.add(postImage.getImage());
+        }
+        posts.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
+        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+        Integer reviewStar = 0;
+        int count = 0;
+        for (Review r : posts.getReviews()) {
+            reviewResponseDtos.add(ReviewResponseDto.from(r));
+            reviewStar += r.getStar();
+            count += 1;
+        }
+        int starAvr = 0;
+        if (count != 0) {
+            starAvr = Math.round(reviewStar / count);
+        }
+        Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
+        if (likes == null) {
+            return HistoryPostResponseDto.of(posts, images, reviewResponseDtos, false, count, starAvr);
+        } else {
+            return HistoryPostResponseDto.of(posts, images, reviewResponseDtos, true, count, starAvr);
+        }
+
     }
 
 
@@ -291,7 +321,8 @@ public class PostService {
     // ==================================== Method Extract ====================================
 
     //게시글 정보 조화 메서드
-    private PostResponseDto getPostInfo(Long post_id, Member member) {
+    private PostResponseDto getPostInfo(Long post_id, Member member, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         Post posts = postRepository.findById(post_id).orElseThrow(
                 () -> new CustomException(Error.NOT_FOUND_POST)
         );
@@ -313,10 +344,15 @@ public class PostService {
             starAvr = Math.round(reviewStar / count);
         }
         Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), reviewResponseDtos.size());
+        Page<ReviewResponseDto> reviewResponseDtoPage = new PageImpl<>(reviewResponseDtos.subList(start, end), pageable, reviewResponseDtos.size());
+
         if (likes == null) {
-            return PostResponseDto.of(posts, images, reviewResponseDtos, false, count, starAvr);
+            return PostResponseDto.of(posts, images, reviewResponseDtoPage, false, count, starAvr);
         } else {
-            return PostResponseDto.of(posts, images, reviewResponseDtos, true, count, starAvr);
+            return PostResponseDto.of(posts, images, reviewResponseDtoPage, true, count, starAvr);
         }
     }
 
