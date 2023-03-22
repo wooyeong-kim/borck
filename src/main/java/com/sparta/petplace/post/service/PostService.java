@@ -65,6 +65,7 @@ public class PostService {
     private final S3Uploader s3Uploader;
 
 
+
     //게시글 전체 조회
     @Transactional(readOnly = true)
     public Page<PostResponseDto> getPosts(String category, Sort sort, String lat, String lng, int page, int size, Member member) {
@@ -76,7 +77,7 @@ public class PostService {
         Double usrtLng = Double.parseDouble(lng);
 
 
-        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng, sort);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng ,sort);
 
         sort(sort, postResponseDtos);
         int start = (int) pageable.getOffset();
@@ -93,7 +94,7 @@ public class PostService {
         Double usrtLat = Double.parseDouble(lat);
         Double usrtLng = Double.parseDouble(lng);
 
-        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng, Sort.DISTANCE);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng,Sort.DISTANCE);
 //        Collections.sort(postResponseDtos, Comparator.comparing(PostResponseDto::getDistance));
 
         List<PostResponseDto> mainResponseDto = new ArrayList<>();
@@ -161,18 +162,38 @@ public class PostService {
 
     //게시글 상세 조회
     @Transactional
-    public PostResponseDto getPostId(Long post_id, Member member, int page, int size) {
+    public PostResponseDto getPostId(Long post_id, Member member) {
         Post posts = postRepository.findById(post_id).orElseThrow(
                 () -> new CustomException(Error.NOT_FOUND_POST)
         );
+        List<String> images = new ArrayList<>();
+        for (PostImage postImage : posts.getImage()) {
+            images.add(postImage.getImage());
+        }
 
-        // getPostInfo 메서드에서 review paging 처리
-        PostResponseDto postResponseDto = getPostInfo(post_id, member, page, size);
+        Integer reviewStar = 0;
+        int count = 0;
+        for (Review r : posts.getReviews()) {
+            reviewStar += r.getStar();
+            count += 1;
+        }
+        int starAvr = 0;
+        if (count != 0) {
+            starAvr = Math.round(reviewStar / count);
+        }
+        Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
+
+        PostResponseDto postResponseDto = PostResponseDto.of(posts, images, likes != null, count, starAvr);
+
+
         List<MemberHistory> memberHistories = memberHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
         // findFirst(): filter를 통과한 첫 번째 요소를 찾음. findFirst는 Optional<MemberHistory> 타입을 반환하며, 조건에 맞는 요소가 없는 경우 Optional.empty()를 반환
         Optional<MemberHistory> existingHistory = memberHistories.stream()
                 .filter(history -> history.getPost().getId().equals(post_id))
                 .findFirst();
+
+
+
 
         if (existingHistory.isPresent()) {
             MemberHistory historyToDelete = existingHistory.get();
@@ -189,8 +210,7 @@ public class PostService {
             memberHistoryRepository.save(MemberHistory.of(member, posts, new Date()));
         }
 
-        Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
-        return postResponseDto;
+        return  postResponseDto;
 
     }
 
@@ -202,6 +222,8 @@ public class PostService {
         );
         return HistoryPostResponseDto.of(posts);
     }
+
+
 
 
     //게시글 수정
@@ -275,7 +297,7 @@ public class PostService {
             throw new CustomException(Error.NOT_FOUND_POST);
         }
 
-        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng, sort);
+        buildResponseDtos(member, postResponseDtos, posts, usrtLat, usrtLng,sort);
 
         log.info(postResponseDtos.get(0).getCategory());
 
@@ -286,43 +308,32 @@ public class PostService {
     }
 
 
-    // ==================================== Method Extract ====================================
-
-    //게시글 정보 조화 메서드
-    private PostResponseDto getPostInfo(Long post_id, Member member, int page, int size) {
+    //리뷰 페이지네이션
+    public Page<ReviewResponseDto> getPostInfo(Long post_id, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Post posts = postRepository.findById(post_id).orElseThrow(
                 () -> new CustomException(Error.NOT_FOUND_POST)
         );
-        List<String> images = new ArrayList<>();
-        for (PostImage postImage : posts.getImage()) {
-            images.add(postImage.getImage());
-        }
         posts.getReviews().sort(Comparator.comparing(Review::getCreatedAt).reversed());
         List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-        Integer reviewStar = 0;
-        int count = 0;
         for (Review r : posts.getReviews()) {
             reviewResponseDtos.add(ReviewResponseDto.from(r));
-            reviewStar += r.getStar();
-            count += 1;
         }
-        int starAvr = 0;
-        if (count != 0) {
-            starAvr = Math.round(reviewStar / count);
-        }
-        Likes likes = likesRepository.findByPostIdAndMemberId(post_id, member.getId());
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), reviewResponseDtos.size());
-        Page<ReviewResponseDto> reviewResponseDtoPage = new PageImpl<>(reviewResponseDtos.subList(start, end), pageable, reviewResponseDtos.size());
 
-        if (likes == null) {
-            return PostResponseDto.of(posts, images, reviewResponseDtoPage, false, count, starAvr);
-        } else {
-            return PostResponseDto.of(posts, images, reviewResponseDtoPage, true, count, starAvr);
-        }
+
+        return new PageImpl<>(reviewResponseDtos.subList(start, end), pageable, reviewResponseDtos.size());
+
     }
+
+
+
+
+
+    // ==================================== Method Extract ====================================
+
 
 
     //거리구하기
@@ -341,7 +352,6 @@ public class PostService {
 
     private void buildResponseDtos(Member member, List<PostResponseDto> postResponseDtos, List<Post> posts, Double usrtLat, Double usrtLng, Sort sort) {
         for (Post p : posts) {
-
             Double postLat = Double.parseDouble(p.getLat());
             Double postLng = Double.parseDouble(p.getLng());
             double distance = distance(usrtLat, usrtLng, postLat, postLng);
@@ -369,7 +379,7 @@ public class PostService {
                     .isLike(isLike)
                     .build());
         }
-        sort(sort, postResponseDtos);
+        sort(sort , postResponseDtos);
 
     }
 
@@ -426,7 +436,6 @@ public class PostService {
             case DISTANCE:
                 postResponseDtos.sort(Comparator.comparing(PostResponseDto::getDistance));
                 break;
-
         }
     }
 }

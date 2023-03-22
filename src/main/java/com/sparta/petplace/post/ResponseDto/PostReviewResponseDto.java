@@ -1,16 +1,18 @@
 package com.sparta.petplace.post.ResponseDto;
 
 import com.sparta.petplace.post.entity.Post;
+import com.sparta.petplace.review.dto.ReviewResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class PostResponseDto {
+public class PostReviewResponseDto {
     private Long id;
 
     private String email;
@@ -37,6 +39,7 @@ public class PostResponseDto {
     private int reviewCount;
 
     private List<String> image;
+    private Page<ReviewResponseDto> review;
 
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -44,7 +47,7 @@ public class PostResponseDto {
     private boolean isLike;
 
     @Builder
-    public PostResponseDto(Post post, List<String> image, boolean isLike, int reviewCount , Integer star , Double distance){
+    public PostReviewResponseDto(Post post, List<String> image, boolean isLike, Page<ReviewResponseDto> review, int reviewCount , Integer star , Double distance){
         this.id = post.getId();
         this.reSizeImage = post.getResizeImage();
         this.modifiedAt = post.getModifiedAt();
@@ -67,26 +70,28 @@ public class PostResponseDto {
         this.lng = post.getLng();
         this.reviewCount = reviewCount;
         this.distance= distance;
+        this.review = review;
         this.isLike = isLike;
         this.image = image;
         this.star = star;
     }
 
-    public static PostResponseDto of(Post post){
-        return PostResponseDto.builder()
+    public static PostReviewResponseDto of(Post post){
+        return PostReviewResponseDto.builder()
                 .post(post)
                 .build();
     }
-    public static PostResponseDto from(Post post,List<String> image){
-        return PostResponseDto.builder()
+    public static PostReviewResponseDto from(Post post,List<String> image){
+        return PostReviewResponseDto.builder()
                 .post(post)
                 .image(image)
                 .build();
     }
-    public static PostResponseDto of(Post post, List<String> image, boolean isLike , int reviewCount, Integer star){
-        return PostResponseDto.builder()
+    public static PostReviewResponseDto of(Post post, List<String> image, Page<ReviewResponseDto> responseDtoList, boolean isLike , int reviewCount, Integer star){
+        return PostReviewResponseDto.builder()
                 .post(post)
                 .image(image)
+                .review(responseDtoList)
                 .reviewCount(reviewCount)
                 .star(star)
                 .isLike(isLike)
