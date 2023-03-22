@@ -156,6 +156,7 @@ public class MemberService {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "토큰 갱신 성공."));
     }
 
+
     //내가 본 게시물 조회하기 (3개)
     @Transactional
     public List<HistoryPostResponseDto> getMemberHistory(Member member) {
@@ -169,6 +170,5 @@ public class MemberService {
         }
         return historyPostResponseDtoList;
     }
-
 
 }

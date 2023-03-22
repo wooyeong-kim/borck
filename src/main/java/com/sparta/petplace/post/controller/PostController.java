@@ -8,6 +8,7 @@ import com.sparta.petplace.post.RequestDto.PostRequestDto;
 import com.sparta.petplace.post.ResponseDto.PostResponseDto;
 import com.sparta.petplace.post.entity.Sort;
 import com.sparta.petplace.post.service.PostService;
+import com.sparta.petplace.review.dto.ReviewResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,11 +42,18 @@ public class PostController {
    //게시글 상세 조회
    @GetMapping("/{post_id}")
    private PostResponseDto getPostId(@PathVariable Long post_id ,
-                                     @RequestParam(value = "page") int page,
-                                     @RequestParam(value = "size") int size,
                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
-      return postService.getPostId(post_id,userDetails.getMember(), page, size);
+      return postService.getPostId(post_id,userDetails.getMember());
    }
+
+
+   @GetMapping("/{post_id}/review")
+   private Page<ReviewResponseDto> getPostInfo(@PathVariable Long post_id ,
+                                         @RequestParam(value = "page") int page,
+                                         @RequestParam(value = "size") int size){
+      return postService.getPostInfo(post_id, page, size);
+   }
+
 
    @GetMapping("/topPosts")
    public List<PostResponseDto> getMains(@RequestParam(value = "category") String category,
