@@ -14,7 +14,7 @@ public class ApiResponseDto<T> {
     private ErrorResponse error;
 
     @Builder
-    private ApiResponseDto(boolean success, T response,ErrorResponse error) {
+    private ApiResponseDto(boolean success, T response, ErrorResponse error) {
         this.success = success;
         this.response = response;
         this.error = error;

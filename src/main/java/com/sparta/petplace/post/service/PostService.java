@@ -208,6 +208,7 @@ public class PostService {
             }
 
             memberHistoryRepository.save(MemberHistory.of(member, posts, new Date()));
+
         }
 
         return  postResponseDto;
@@ -279,6 +280,7 @@ public class PostService {
             s3Service.deleteFile(postImage.getImage());
             postImageRepository.delete(postImage);
         }
+
         reviewRepository.deleteByPostId(post_id);
         likesRepository.deleteByPostId(post_id);
         postRepository.deleteById(post_id);

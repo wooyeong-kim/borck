@@ -40,7 +40,7 @@ public class PostController {
 
 
    //게시글 상세 조회
-   @GetMapping("/{post_id}")
+   @GetMapping("/post/{post_id}")
    private PostResponseDto getPostId(@PathVariable Long post_id ,
                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
       return postService.getPostId(post_id,userDetails.getMember());
@@ -91,6 +91,7 @@ public class PostController {
    public ApiResponseDto<SuccessResponse> deletePost(@PathVariable Long post_id, @AuthenticationPrincipal UserDetailsImpl userDetails){
       return postService.deletePost(post_id, userDetails.getMember());
    }
+
 
    //게시글 검색
    @GetMapping("/category/search")

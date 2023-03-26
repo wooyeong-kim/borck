@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script>
+    let eventSource = new EventSource("/sse");
+
+    eventSource.onmessage = function (event) {
+      console.log(event.data);
+    };
+  </script>
+</head>
+
+<body>
+<div id="messages"></div>
+</body>
+</html>
